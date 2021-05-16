@@ -45,7 +45,7 @@ sdot(7) = eulerdot(1);
 sdot(8) = eulerdot(2);
 sdot(9) = eulerdot(3);
 
-omegadot = J\(R*(0.001*Step*Mext) + M - hat_operator(omega)*J*omega);
+omegadot = J\(R*Mext + M - hat_operator(omega)*J*omega);
 sdot(10) = omegadot(1);
 sdot(11) = omegadot(2);
 sdot(12) = omegadot(3);

@@ -27,15 +27,16 @@ env = rlFunctionEnv(obsInfo,actInfo,'myStepFunction3','myResetFunction3');
 % it must take the observation signal as input and produce a scalar value
 criticNet = [
     featureInputLayer(numObs,'Normalization','none','Name','state')
-    fullyConnectedLayer(128,'Name', 'fc1')
+    fullyConnectedLayer(512,'Name', 'fc1')
     reluLayer('Name', 'relu1')
-    fullyConnectedLayer(128,'Name', 'fc2')
+    fullyConnectedLayer(512,'Name', 'fc2')
     reluLayer('Name', 'relu2')
-    fullyConnectedLayer(128,'Name', 'fc3')
+    fullyConnectedLayer(512,'Name', 'fc3')
     reluLayer('Name', 'relu3')
-    fullyConnectedLayer(128,'Name', 'fc4')
+    fullyConnectedLayer(512,'Name', 'fc4')
     reluLayer('Name', 'relu4')
-    fullyConnectedLayer(1,'Name','out')];
+    fullyConnectedLayer(1,'Name','out')
+    ];
 
 % set some training options for the critic
 criticOpts = rlRepresentationOptions('LearnRate',1e-4,'GradientThreshold',1);
@@ -49,38 +50,38 @@ critic = rlValueRepresentation(criticNet,obsInfo,'Observation',{'state'},criticO
 % input path layers (2 by 1 input and a 1 by 1 output)
 statePath = [
     featureInputLayer(numObs,'Normalization','none','Name','observation')
-    fullyConnectedLayer(128, 'Name','commonFC1')
+    fullyConnectedLayer(512, 'Name','commonFC1')
     reluLayer('Name','CommonRelu1')
-    fullyConnectedLayer(128, 'Name','commonFC3')
+    fullyConnectedLayer(512, 'Name','commonFC3')
     reluLayer('Name','CommonRelu3')
-    fullyConnectedLayer(128, 'Name','commonFC4')
+    fullyConnectedLayer(512, 'Name','commonFC4')
     reluLayer('Name','CommonRelu4')
-    fullyConnectedLayer(128, 'Name','commonFC2')
+    fullyConnectedLayer(512, 'Name','commonFC2')
     reluLayer('Name','CommonRelu2')
-
     ];
 meanPath = [
-    fullyConnectedLayer(128,'Name','MeanFC1')
+    fullyConnectedLayer(512,'Name','MeanFC1')
     reluLayer('Name','MeanRelu1')
-    fullyConnectedLayer(128,'Name','MeanFC2')
+    fullyConnectedLayer(512,'Name','MeanFC2')
     reluLayer('Name','MeanRelu2')
-    fullyConnectedLayer(128,'Name','MeanFC3')
+    fullyConnectedLayer(512,'Name','MeanFC3')
     reluLayer('Name','MeanRelu3')
     fullyConnectedLayer(numAct,'Name','Mean')
     tanhLayer('Name','MeanTanh')
     scalingLayer('Name','MeanScaling','Scale',3,'Bias',thrust+0.5)
     ];
 stdPath = [
-    fullyConnectedLayer(128,'Name','StdFC1')
+    fullyConnectedLayer(512,'Name','StdFC1')
     reluLayer('Name','StdRelu1')
-    fullyConnectedLayer(128,'Name','StdFC2')
+    fullyConnectedLayer(512,'Name','StdFC2')
     reluLayer('Name','StdRelu2')
-    fullyConnectedLayer(128,'Name','StdFC3')
+    fullyConnectedLayer(512,'Name','StdFC3')
     reluLayer('Name','StdRelu3')
     fullyConnectedLayer(numAct,'Name','StdFC4')
-    sigmoidLayer('Name','StdRelu4')
-    scalingLayer('Name','ActorScaling','Scale',0.1*thrust)];
-
+%     softplusLayer('Name', 'vp_out')
+    sigmoidLayer('Name','StdSig')
+    scalingLayer('Name','ActorScaling','Scale',0.1*thrust)
+    ];
 concatPath = concatenationLayer(1,2,'Name','GaussianParameters');
 
 actorNetwork = layerGraph(statePath);
@@ -93,34 +94,37 @@ actorNetwork = connectLayers(actorNetwork,'MeanScaling','GaussianParameters/in1'
 actorNetwork = connectLayers(actorNetwork,'ActorScaling','GaussianParameters/in2');
 
 actorOptions = rlRepresentationOptions('Optimizer','adam','LearnRate',1e-4,...
-                                       'GradientThreshold',1,'L2RegularizationFactor',1e-5);
+                                 'GradientThreshold',1,'L2RegularizationFactor',1e-5);
 if gpuDeviceCount("available")
     actorOpts.UseDevice = 'gpu';
 end
 
 actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,actorOptions,...
     'Observation',{'observation'});
-
 %%
 agentOpts = rlPPOAgentOptions('SampleTime',0.01);
 agent = rlPPOAgent(actor,critic,agentOpts);
-
 %%
-agent.AgentOptions.ExperienceHorizon = 2048;
-agent.AgentOptions.MiniBatchSize = 2048;
-agent.AgentOptions.UseDeterministicExploitation = true;
+agent.AgentOptions.ExperienceHorizon = 2^11;
+agent.AgentOptions.MiniBatchSize = 2^11;
+agent.AgentOptions.UseDeterministicExploitation = false;
 agent.AgentOptions.EntropyLossWeight = 0.4;
+%agent.AgentOptions.NumEpoch = 10;
 trainOpts = rlTrainingOptions(...
     'MaxEpisodes',10000000, ...
     'MaxStepsPerEpisode',10000, ...
     'Verbose',false, ...
     'StopTrainingCriteria',"AverageReward",...
-    'UseParallel',true,...
-    'StopTrainingValue',10000000);
-% trainOpts.ParallelizationOptions.StepsUntilDataIsSent = 1024;
+    'StopTrainingValue',10000000,...
+    'ScoreAveragingWindowLength',50);
+trainOpts.UseParallel = true;
+% trainOpts.ParallelizationOptions.StepsUntilDataIsSent = 2^11;
+% agent.AgentOptions.ClipFactor = 0.1;
 %%
 trainingStats = train(agent,env,trainOpts);
-
+% beta_rnd = betarnd(10,10,[size(Mean)]);
+% beta_rnd = (beta_rnd-mean(beta_rnd))/std(beta_rnd);
+% Action = Mean + StandardDeviation .* beta_rnd;
 %%
 agent.AgentOptions.UseDeterministicExploitation = true;
 simOptions = rlSimulationOptions('MaxSteps',5000);
@@ -132,7 +136,6 @@ action = squeeze(experience.Action.QuadAction.Data(:,1,:));
 global Tau_vec P State;
 t_ref = 0.01:0.01:sum(Tau_vec)*0.999;
 pos_ref = getPos(Tau_vec, t_ref', P);
-size(pos_ref)
 figure(1)
 subplot(2,1,1)
 plot(t, State(1,:),'Color','red')
@@ -174,11 +177,11 @@ a=1;
 action_filtered = filter(b,a,action');
 action_filtered = action_filtered';
 figure(3)
-plot(t(2:end), action_filtered(1,:))
+plot(t(10:end), action_filtered(1,9:end))
 hold on
-plot(t(2:end), action_filtered(2,:))
-plot(t(2:end), action_filtered(3,:))
-plot(t(2:end), action_filtered(4,:))
+plot(t(10:end), action_filtered(2,9:end))
+plot(t(10:end), action_filtered(3,9:end))
+plot(t(10:end), action_filtered(4,9:end))
 grid on
 hold off
 %%
@@ -192,10 +195,6 @@ hold on
 plot3(pos_ref(:,1),pos_ref(:,2),pos_ref(:,3),'--','Color','red')
 hold off
 %%
-filename = '0512_infloop_PPO_2.avi';
+filename = '0513_line_PPO_2.avi';
 target_fps = 50;
 video_gen(fig, t, State', filename, target_fps, Fext_hist)
-%%
-filename = 'myvid3.avi';
-target_fps = 60;
-video_gen2(fig, t, State', filename, target_fps, Fext_hist')
