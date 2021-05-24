@@ -262,7 +262,7 @@ plot(t, Action_hist(2,:))
 plot(t, Action_hist(3,:))
 plot(t, Action_hist(4,:))
 hold off
-%%
+%%  
 global Fext_hist;
 size(Fext_hist)
 fig = figure(4);

@@ -89,10 +89,9 @@ Tau_vec =[1.7620,...
     0.5721,...
     0.6761,...
     1.8935]';
-Tau_vec(2:end-1) = 0.5;
-Tau_vec(1) = 1.8;
-Tau_vec(end) = 1.8;
-
+Tau_vec(2:end-1) = .5;
+Tau_vec(1) = 1.75;
+Tau_vec(end) = 1.75;
 % Trajectory
 traj = MinimumSnapTrajectory(Tau_vec, PATH);
 P = traj.P;

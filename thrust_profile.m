@@ -1,5 +1,5 @@
 X = -5:0.01:5;
-f = tanh(X)*4.5 + 5.5;
+f = tanh(X)*7.5 + 7.5;
 f1 = tanh(X+1.5)*(thrust/2-1/2) + thrust/2+1/2;
 f2 = tanh(X-1.5)*(4.5-(thrust/2-1/2)) + 4.5-thrust/2+1/2;
 f1 = tanh(X+1.5)*(thrust/2) + thrust/2;

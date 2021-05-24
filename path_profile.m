@@ -32,15 +32,15 @@ Tau_vec =[1.7620,...
     0.5721,...
     0.6761,...
     1.8935]';
-Tau_vec(2:end-1) = 0.3;
-Tau_vec(1) = 1.8;
-Tau_vec(end) = 1.8;
+Tau_vec(2:end-1) = .5;
+Tau_vec(1) = 1.75;
+Tau_vec(end) = 1.75;
 traj = MinimumSnapTrajectory(Tau_vec, PATH);
 P = traj.P;
 
-t_ref = 0.01:0.01:sum(Tau_vec)*0.999;
+t_ref = 0.01:0.1:sum(Tau_vec)*0.999;
 pos_ref = getPos(Tau_vec, t_ref', P);
 figure(1)
-plot3(pos_ref(:,1),pos_ref(:,2),pos_ref(:,3))
+plot3(pos_ref(:,1),pos_ref(:,2),pos_ref(:,3),'.')
 grid on
 axis equal
