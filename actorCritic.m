@@ -1,4 +1,5 @@
 % Model parameters
+S.g = 9.807; % Gravity
 S.mb = 1.477; % Mass of UAV
 S.d = 0.263; % Arm Length (Rotor and COM of UAV)
 S.c = 8.004e-4; % Drag Factor
@@ -8,24 +9,64 @@ S.m1 = 0.05; % Mass of First Link
 S.m2 = 0.05; % Mass of Second Link
 S.l1 = 0.5; % Length of First Link
 S.l2 = 0.5; % Length of Second Link
-S.g = 9.81; % Gravity
-% Control Parameters
-S.dt = 1/100;
 
-
-numObs = 12;
+% Observation and Action Information
+numObs = 21;
 obsInfo = rlNumericSpec([numObs 1]);
 obsInfo.Name = 'Quad States';
-obsInfo.Description = 'x,y,z,xdot,ydot,zdot,r,p,y,wx,wy,wz';
 
 thrust = (S.mb)*S.g/4;
 numAct = 4;
-actInfo = rlNumericSpec([numAct 1],'LowerLimit',(thrust*0.99)+[0;0;0;0],...
-                                   'UpperLimit',(thrust*1.01)+[0;0;0;0]);
+actInfo = rlNumericSpec([numAct 1]);
 actInfo.Name = 'Quad Action';
-
+actInfo.LowerLimit = [0 0 0 0]';
 %Define Environment
-env = rlFunctionEnv(obsInfo,actInfo,'myStepFunction2','myResetFunction2');
+env = rlFunctionEnv(obsInfo,actInfo,'myStepFunction3','myResetFunction3');
+%%
+actorNetwork = [
+    featureInputLayer(numObs,'Normalization','none','Name','state')
+    fullyConnectedLayer(128, 'Name','ActorStateFC1')
+    reluLayer('Name','ActorRelu1')
+    fullyConnectedLayer(256, 'Name','ActorStateFC2')
+    reluLayer('Name','ActorRelu2')
+    fullyConnectedLayer(256, 'Name','ActorStateFC3')
+    reluLayer('Name','ActorRelu3')
+    fullyConnectedLayer(128, 'Name','ActorStateFC4')
+    reluLayer('Name','ActorRelu4')
+    fullyConnectedLayer(2*numAct,'Name','action')
+    tanhLayer('Name','MeanTanh')
+    scalingLayer('Name','MeanScaling','Scale',4.5,'Bias',5.5)
+    ];
+    
+actorOpts = rlRepresentationOptions('LearnRate',1e-6,...
+    'GradientThreshold',1,...
+    'L2RegularizationFactor',0.0001);
+
+actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,...
+    'Observation',{'state'},actorOpts);
+%%
+% create the network to be used as approximator in the critic
+% it must take the observation signal as input and produce a scalar value
+criticNet = [
+    featureInputLayer(numObs,'Normalization','none','Name','state')
+    fullyConnectedLayer(192,'Name', 'fc1')
+    reluLayer('Name', 'relu1')
+    fullyConnectedLayer(256,'Name', 'fc2')
+    reluLayer('Name', 'relu2')
+    fullyConnectedLayer(256,'Name', 'fc3')
+    reluLayer('Name', 'relu3')
+    fullyConnectedLayer(192,'Name', 'fc4')
+    reluLayer('Name', 'relu4')
+    fullyConnectedLayer(1,'Name','out')
+    ];
+
+% set some training options for the critic
+criticOpts = rlRepresentationOptions('LearnRate',2e-4,'GradientThreshold',1);
+if gpuDeviceCount("available")
+    criticOpts.UseDevice = 'gpu';
+end
+% create the critic representation from the network
+critic = rlValueRepresentation(criticNet,obsInfo,'Observation',{'state'},criticOpts);
 %%
 criticNetwork = [
     featureInputLayer(numObs,'Normalization','none','Name','state')
@@ -44,46 +85,27 @@ criticOpts = rlRepresentationOptions('LearnRate',1e-6,'GradientThreshold',1,...
 
 critic = rlValueRepresentation(criticNetwork,obsInfo,'Observation',{'state'},criticOpts);
 
-actorNetwork = [
-    featureInputLayer(numObs,'Normalization','none','Name','state')
-    fullyConnectedLayer(64, 'Name','ActorStateFC1')
-    batchNormalizationLayer('Name','bn1')
-    reluLayer('Name','ActorRelu1')
-    fullyConnectedLayer(64, 'Name','ActorStateFC2')
-    reluLayer('Name','ActorRelu2')
-    fullyConnectedLayer(64, 'Name','ActorStateFC3')
-    reluLayer('Name','ActorRelu3')
-    fullyConnectedLayer(64, 'Name','ActorStateFC4')
-    reluLayer('Name','ActorRelu4')
-    fullyConnectedLayer(2*numAct,'Name','action')
-    softplusLayer('Name', 'vp_out');
-    scalingLayer('Name','ActorScaling','Scale',max(actInfo.UpperLimit))];
-    
-actorOpts = rlRepresentationOptions('LearnRate',1e-6,...
-    'GradientThreshold',1,...
-    'L2RegularizationFactor',0.0001);
 
-actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,...
-    'Observation',{'state'},actorOpts);
-
+%%
 agentOpts = rlACAgentOptions(...
     'NumStepsToLookAhead',32,...
     'EntropyLossWeight',0.01,...
     'DiscountFactor',0.99);
-
-% Define Environment
-env = rlFunctionEnv(obsInfo,actInfo,'myStepFunction','myResetFunction');
-
 agent = rlACAgent(actor,critic,agentOpts);
 %%
+agent.AgentOptions.SampleTime = 0.01;
 trainOpts = rlTrainingOptions(...
-    'MaxEpisodes',1000000, ...
+    'MaxEpisodes',10000000, ...
     'MaxStepsPerEpisode',10000, ...
     'Verbose',false, ...
-    'Plots','training-progress',...
     'StopTrainingCriteria',"AverageReward",...
-    'StopTrainingValue',10000000);
-
+    'StopTrainingValue',10000000,...
+    'ScoreAveragingWindowLength',100);
+trainOpts.UseParallel = true;
+trainOpts.ParallelizationOptions.DataToSendFromWorkers = 'Gradients';
+trainOpts.ParallelizationOptions.StepsUntilDataIsSent = 1000;
+% agent.AgentOptions.ClipFactor = 0.1;
+%%
 trainingStats = train(agent,env,trainOpts);
 %%
 simOptions = rlSimulationOptions('MaxSteps',5000);
