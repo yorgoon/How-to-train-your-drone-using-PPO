@@ -34,17 +34,12 @@ state = State(:,end);
 % Desired state
 desired_state = desired_state_optimal(Tau_vec, Time, PATH, P);
 
-% Reference controller (Comment out)
+% % Reference controller (Comment out)
 % action_ref_control = reference_controller(state, desired_state, S);
-% state_dot = droneDynamics(state, action_ref_control, S);
+% Action = action_ref_control; 
 state_dot = droneDynamics(state, Action, S);
 
 % Update state
-% Guided training
-% if Step <= 100
-%     state(1:3) = desired_state.pos;
-%     state(4:6) = desired_state.vel;
-% end
 state = state + ts*state_dot;
 Action_hist = [Action_hist ,Action];
 Fext_hist = [Fext_hist ,Fext];
@@ -60,15 +55,15 @@ acc_error = state_dot(4:6) - desired_state.acc;
 
 % Update rotation
 R = ROTZ(state(9))*ROTX(state(7))*ROTY(state(8));
-
+quat = rotm2quat(R);
 % Angular acceleration
 % ang_acc = state_dot(end-2:end);
 
 % Update Log
 % LoggedSignals.State = [pos_error;vel_error;acc_error;state(7:12)];
 % LoggedSignals.State = [pos_error;vel_error;state(7:12)];
-LoggedSignals.State = [pos_error;vel_error;acc_error;R(:);state(10:12)];
-
+% LoggedSignals.State = [pos_error;vel_error;acc_error;R(:);state(10:12)];
+LoggedSignals.State = [pos_error;vel_error;acc_error;quat';state(10:12)];
 % Transform state to observation.
 NextObs = LoggedSignals.State;
 
@@ -105,7 +100,7 @@ r_omega = exp(-(1/pi * omega_l2).^2);
 % r_action = exp(-(1/8 * action_l2)^2);
 % r_action = exp(-0.001*action_l2^2); % For imitation learning
 
-rewards = [0.6 0.1 0.3] .* [r_pos r_vel r_omega];
+rewards = [0.6 0.1 0.1 0.2] .* [r_pos r_vel r_acc r_omega];
 
 fprintf('r,e: %f %f %f %f %f| %f %f %f %f %f\n',r_pos,r_vel,r_acc,r_yaw,r_omega,pos_l2,vel_l2,acc_l2,yaw_error*180/pi,omega_l2*180/pi)
 fprintf('Actions: %f %f %f %f\n',Action(1),Action(2),Action(3),Action(4))

@@ -11,7 +11,7 @@ S.l1 = 0.5; % Length of First Link
 S.l2 = 0.5; % Length of Second Link
 
 % Observation and Action Information
-numObs = 21;
+numObs = 16;
 obsInfo = rlNumericSpec([numObs 1]);
 obsInfo.Name = 'Quad States';
 
@@ -48,12 +48,12 @@ meanCommonPath = [
 meanTanh1Path = [
     scalingLayer('Name','meanScaling1','Bias',1.5)
     tanhLayer('Name','meantanh1')
-    scalingLayer('Name','meantanh1scaling','Scale',(thrust/2-1/2),'Bias', thrust/2+1/2)
+    scalingLayer('Name','meantanh1scaling','Scale',(thrust/2),'Bias', (thrust/2))
     ];
 meanTanh2Path = [
     scalingLayer('Name','meanScaling2','Bias',-1.5)
     tanhLayer('Name','meantanh2')
-    scalingLayer('Name','meantanh2scaling','Scale',(4.5-(thrust/2-1/2)),'Bias', 4.5-thrust/2+1/2)
+    scalingLayer('Name','meantanh2scaling','Scale',5-(thrust/2),'Bias', 5-(thrust/2))
     ];
 add = additionLayer(2,'Name','add_1');
 
@@ -203,7 +203,7 @@ t = experience.Observation.QuadStates.Time;
 xsave = squeeze(experience.Observation.QuadStates.Data(:,1,:));
 action = squeeze(experience.Action.QuadAction.Data(:,1,:));
 %
-global Tau_vec P State;
+global Tau_vec P State Action_hist;
 t_ref = 0.01:0.01:sum(Tau_vec)*0.999;
 pos_ref = getPos(Tau_vec, t_ref', P);
 figure(1)
@@ -253,6 +253,14 @@ plot(t(10:end), action_filtered(2,9:end))
 plot(t(10:end), action_filtered(3,9:end))
 plot(t(10:end), action_filtered(4,9:end))
 grid on
+hold off
+
+plot(t, Action_hist(1,:))
+hold on
+grid on
+plot(t, Action_hist(2,:))
+plot(t, Action_hist(3,:))
+plot(t, Action_hist(4,:))
 hold off
 %%
 global Fext_hist;
