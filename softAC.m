@@ -1,4 +1,5 @@
 % Model parameters
+S.g = 9.807; % Gravity
 S.mb = 1.477; % Mass of UAV
 S.d = 0.263; % Arm Length (Rotor and COM of UAV)
 S.c = 8.004e-4; % Drag Factor
@@ -8,37 +9,35 @@ S.m1 = 0.05; % Mass of First Link
 S.m2 = 0.05; % Mass of Second Link
 S.l1 = 0.5; % Length of First Link
 S.l2 = 0.5; % Length of Second Link
-S.g = 9.807; % Gravity
 
 % Observation and Action Information
-numObs = 12;
+numObs = 21;
 obsInfo = rlNumericSpec([numObs 1]);
 obsInfo.Name = 'Quad States';
-obsInfo.Description = 'x,y,z,xdot,ydot,zdot,r,p,y,wx,wy,wz';
 
 thrust = (S.mb)*S.g/4;
 numAct = 4;
 actInfo = rlNumericSpec([numAct 1]);
 actInfo.Name = 'Quad Action';
-
+actInfo.LowerLimit = [0 0 0 0]';
 %Define Environment
-env = rlFunctionEnv(obsInfo,actInfo,'myStepFunction2','myResetFunction2');
+env = rlFunctionEnv(obsInfo,actInfo,'myStepFunction3','myResetFunction3');
 %%
 statePath1 = [
     featureInputLayer(numObs,'Normalization','none','Name','observation')
-    fullyConnectedLayer(64,'Name','CriticStateFC1')
+    fullyConnectedLayer(150,'Name','CriticStateFC1')
     reluLayer('Name','CriticStateRelu1')
-    fullyConnectedLayer(64,'Name','CriticStateFC3')
+    fullyConnectedLayer(150,'Name','CriticStateFC3')
     reluLayer('Name','CriticStateRelu3')
-    fullyConnectedLayer(64,'Name','CriticStateFC4')
+    fullyConnectedLayer(150,'Name','CriticStateFC4')
     ];
 actionPath1 = [
     featureInputLayer(numAct,'Normalization','none','Name','action')
-    fullyConnectedLayer(64,'Name','CriticActionFC1')
+    fullyConnectedLayer(150,'Name','CriticActionFC1')
     reluLayer('Name','CriticActionRelu1')
-    fullyConnectedLayer(64,'Name','CriticActionFC3')
+    fullyConnectedLayer(150,'Name','CriticActionFC3')
     reluLayer('Name','CriticActionRelu3')
-    fullyConnectedLayer(64,'Name','CriticActionFC4')
+    fullyConnectedLayer(150,'Name','CriticActionFC4')
     ];
 commonPath1 = [
     additionLayer(2,'Name','add')
@@ -58,47 +57,57 @@ critic1 = rlQValueRepresentation(criticNet,obsInfo,actInfo,...
     'Observation',{'observation'},'Action',{'action'},criticOptions);
 critic2 = rlQValueRepresentation(criticNet,obsInfo,actInfo,...
     'Observation',{'observation'},'Action',{'action'},criticOptions);
-%%
+%
+%% input path layers (2 by 1 input and a 1 by 1 output)
 statePath = [
     featureInputLayer(numObs,'Normalization','none','Name','observation')
-    fullyConnectedLayer(64, 'Name','commonFC1')
-    reluLayer('Name','CommonRelu')];
+    fullyConnectedLayer(150, 'Name','commonFC1')
+    reluLayer('Name','CommonRelu1')
+    fullyConnectedLayer(150, 'Name','commonFC3')
+    reluLayer('Name','CommonRelu3')
+    fullyConnectedLayer(150, 'Name','commonFC4')
+    reluLayer('Name','CommonRelu4')
+    fullyConnectedLayer(150, 'Name','commonFC2')
+    reluLayer('Name','CommonRelu2')
+    ];
 meanPath = [
-    fullyConnectedLayer(64,'Name','MeanFC1')
+    fullyConnectedLayer(150,'Name','MeanFC1')
     reluLayer('Name','MeanRelu1')
-    fullyConnectedLayer(64,'Name','MeanFC3')
+    fullyConnectedLayer(150,'Name','MeanFC2')
+    reluLayer('Name','MeanRelu2')
+    fullyConnectedLayer(150,'Name','MeanFC3')
     reluLayer('Name','MeanRelu3')
-    fullyConnectedLayer(64,'Name','MeanFC4')
-    reluLayer('Name','MeanRelu4')
     fullyConnectedLayer(numAct,'Name','Mean')
-    tanhLayer('Name', 'MeanTanh1')
-    scalingLayer('Name','MeanScale','Scale',0.01*thrust,'Bias',thrust)
+    sigmoidLayer('Name','MeanSig')
+    scalingLayer('Name','MeanScaling','Scale',9,'Bias',1)
     ];
 stdPath = [
-    fullyConnectedLayer(64,'Name','StdFC1')
+    fullyConnectedLayer(150,'Name','StdFC1')
     reluLayer('Name','StdRelu1')
-    fullyConnectedLayer(64,'Name','StdFC3')
+    fullyConnectedLayer(150,'Name','StdFC2')
+    reluLayer('Name','StdRelu2')
+    fullyConnectedLayer(150,'Name','StdFC3')
     reluLayer('Name','StdRelu3')
-    fullyConnectedLayer(64,'Name','StdFC4')
-    reluLayer('Name','StdRelu4')
-    fullyConnectedLayer(numAct,'Name','StdFC5')
-    sigmoidLayer('Name','StdSigmoid')
-    scalingLayer('Name','StdScaling','Scale',0.01*thrust)
+    fullyConnectedLayer(numAct,'Name','StdFC4')
+    sigmoidLayer('Name','StdSig')
+    scalingLayer('Name','ActorScaling','Scale',0.5,'Bias',0)
     ];
-
 concatPath = concatenationLayer(1,2,'Name','GaussianParameters');
 
 actorNetwork = layerGraph(statePath);
 actorNetwork = addLayers(actorNetwork,meanPath);
 actorNetwork = addLayers(actorNetwork,stdPath);
 actorNetwork = addLayers(actorNetwork,concatPath);
-actorNetwork = connectLayers(actorNetwork,'CommonRelu','MeanFC1/in');
-actorNetwork = connectLayers(actorNetwork,'CommonRelu','StdFC1/in');
-actorNetwork = connectLayers(actorNetwork,'MeanScale','GaussianParameters/in1');
-actorNetwork = connectLayers(actorNetwork,'StdScaling','GaussianParameters/in2');
+actorNetwork = connectLayers(actorNetwork,'CommonRelu2','MeanFC1/in');
+actorNetwork = connectLayers(actorNetwork,'CommonRelu2','StdFC1/in');
+actorNetwork = connectLayers(actorNetwork,'MeanScaling','GaussianParameters/in1');
+actorNetwork = connectLayers(actorNetwork,'ActorScaling','GaussianParameters/in2');
 
-actorOptions = rlRepresentationOptions('Optimizer','adam','LearnRate',1e-3,...
-                                       'GradientThreshold',1,'L2RegularizationFactor',1e-5);
+actorOptions = rlRepresentationOptions('Optimizer','adam','LearnRate',2e-4,...
+                                 'GradientThreshold',1);
+if gpuDeviceCount("available")
+    actorOpts.UseDevice = 'gpu';
+end
 
 actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,actorOptions,...
     'Observation',{'observation'});
@@ -108,7 +117,7 @@ agentOptions.SampleTime = 0.01;
 agentOptions.DiscountFactor = 0.99;
 agentOptions.TargetSmoothFactor = 1e-4;
 agentOptions.ExperienceBufferLength = 1e6;
-agentOptions.MiniBatchSize = 32;
+agentOptions.MiniBatchSize = 2^11;
 
 agent = rlSACAgent(actor,[critic1 critic2],agentOptions);
 

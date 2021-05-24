@@ -19,68 +19,118 @@ thrust = (S.mb)*S.g/4;
 numAct = 4;
 actInfo = rlNumericSpec([numAct 1]);
 actInfo.Name = 'Quad Action';
-
+actInfo.LowerLimit = [0 0 0 0]';
 %Define Environment
 env = rlFunctionEnv(obsInfo,actInfo,'myStepFunction3','myResetFunction3');
 %%
-% create the network to be used as approximator in the critic
-% it must take the observation signal as input and produce a scalar value
-criticNet = [
-    featureInputLayer(numObs,'Normalization','none','Name','state')
-    fullyConnectedLayer(512,'Name', 'fc1')
-    reluLayer('Name', 'relu1')
-    fullyConnectedLayer(512,'Name', 'fc2')
-    reluLayer('Name', 'relu2')
-    fullyConnectedLayer(512,'Name', 'fc3')
-    reluLayer('Name', 'relu3')
-    fullyConnectedLayer(512,'Name', 'fc4')
-    reluLayer('Name', 'relu4')
-    fullyConnectedLayer(1,'Name','out')
+% input path layers (2 by 1 input and a 1 by 1 output)
+statePath = [
+    featureInputLayer(numObs,'Normalization','none','Name','observation')
+    fullyConnectedLayer(192, 'Name','commonFC1')
+    reluLayer('Name','CommonRelu1')
+    fullyConnectedLayer(256, 'Name','commonFC3')
+    reluLayer('Name','CommonRelu3')
+    fullyConnectedLayer(256, 'Name','commonFC4')
+    reluLayer('Name','CommonRelu4')
+    fullyConnectedLayer(192, 'Name','commonFC2')
+    reluLayer('Name','CommonRelu2')
     ];
 
-% set some training options for the critic
-criticOpts = rlRepresentationOptions('LearnRate',1e-4,'GradientThreshold',1);
+meanCommonPath = [
+    fullyConnectedLayer(192,'Name','MeanFC1')
+    reluLayer('Name','MeanRelu1')
+    fullyConnectedLayer(256,'Name','MeanFC2')
+    reluLayer('Name','MeanRelu2')
+    fullyConnectedLayer(192,'Name','MeanFC3')
+    reluLayer('Name','MeanRelu3')
+    fullyConnectedLayer(numAct,'Name','Mean')
+    ];
+meanTanh1Path = [
+    scalingLayer('Name','meanScaling1','Bias',1.5)
+    tanhLayer('Name','meantanh1')
+    scalingLayer('Name','meantanh1scaling','Scale',(thrust/2-1/2),'Bias', thrust/2+1/2)
+    ];
+meanTanh2Path = [
+    scalingLayer('Name','meanScaling2','Bias',-1.5)
+    tanhLayer('Name','meantanh2')
+    scalingLayer('Name','meantanh2scaling','Scale',(4.5-(thrust/2-1/2)),'Bias', 4.5-thrust/2+1/2)
+    ];
+add = additionLayer(2,'Name','add_1');
+
+stdPath = [
+    fullyConnectedLayer(192,'Name','StdFC1')
+    reluLayer('Name','StdRelu1')
+    fullyConnectedLayer(256,'Name','StdFC2')
+    reluLayer('Name','StdRelu2')
+    fullyConnectedLayer(192,'Name','StdFC3')
+    reluLayer('Name','StdRelu3')
+    fullyConnectedLayer(numAct,'Name','StdFC4')
+    sigmoidLayer('Name','StdSig')
+    scalingLayer('Name','ActorScaling','Scale',thrust*0.1)
+    ];
+
+concatPath = concatenationLayer(1,2,'Name','GaussianParameters');
+
+actorNetwork = layerGraph(statePath);
+actorNetwork = addLayers(actorNetwork,meanCommonPath);
+actorNetwork = addLayers(actorNetwork,meanTanh1Path);
+actorNetwork = addLayers(actorNetwork,meanTanh2Path);
+actorNetwork = addLayers(actorNetwork,add);
+actorNetwork = addLayers(actorNetwork,stdPath);
+actorNetwork = addLayers(actorNetwork,concatPath);
+actorNetwork = connectLayers(actorNetwork,'CommonRelu2','MeanFC1/in');
+actorNetwork = connectLayers(actorNetwork, 'Mean', 'meanScaling1/in');
+actorNetwork = connectLayers(actorNetwork, 'Mean', 'meanScaling2/in');
+actorNetwork = connectLayers(actorNetwork,'meantanh1scaling','add_1/in1');
+actorNetwork = connectLayers(actorNetwork,'meantanh2scaling','add_1/in2');
+actorNetwork = connectLayers(actorNetwork,'CommonRelu2','StdFC1/in');
+actorNetwork = connectLayers(actorNetwork,'add_1','GaussianParameters/in1');
+actorNetwork = connectLayers(actorNetwork,'ActorScaling','GaussianParameters/in2');
+
+actorOptions = rlRepresentationOptions('Optimizer','adam','LearnRate',2e-4,...
+                                 'GradientThreshold',1);
 if gpuDeviceCount("available")
-    criticOpts.UseDevice = 'gpu';
+    actorOpts.UseDevice = 'gpu';
 end
-% create the critic representation from the network
-critic = rlValueRepresentation(criticNet,obsInfo,'Observation',{'state'},criticOpts);
+
+actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,actorOptions,...
+    'Observation',{'observation'});
 
 %%
 % input path layers (2 by 1 input and a 1 by 1 output)
 statePath = [
     featureInputLayer(numObs,'Normalization','none','Name','observation')
-    fullyConnectedLayer(512, 'Name','commonFC1')
+    fullyConnectedLayer(192, 'Name','commonFC1')
     reluLayer('Name','CommonRelu1')
-    fullyConnectedLayer(512, 'Name','commonFC3')
+    fullyConnectedLayer(256, 'Name','commonFC3')
     reluLayer('Name','CommonRelu3')
-    fullyConnectedLayer(512, 'Name','commonFC4')
+    fullyConnectedLayer(256, 'Name','commonFC4')
     reluLayer('Name','CommonRelu4')
-    fullyConnectedLayer(512, 'Name','commonFC2')
+    fullyConnectedLayer(192, 'Name','commonFC2')
     reluLayer('Name','CommonRelu2')
     ];
 meanPath = [
-    fullyConnectedLayer(512,'Name','MeanFC1')
+    fullyConnectedLayer(192,'Name','MeanFC1')
     reluLayer('Name','MeanRelu1')
-    fullyConnectedLayer(512,'Name','MeanFC2')
+    fullyConnectedLayer(256,'Name','MeanFC2')
     reluLayer('Name','MeanRelu2')
-    fullyConnectedLayer(512,'Name','MeanFC3')
+    fullyConnectedLayer(192,'Name','MeanFC3')
     reluLayer('Name','MeanRelu3')
     fullyConnectedLayer(numAct,'Name','Mean')
-    tanhLayer('Name','MeanTanh')
-    scalingLayer('Name','MeanScaling','Scale',3,'Bias',thrust+0.5)
+%     scalingLayer('Name','tanhScaling','Scale',1/2,'Bias',-1.8)
+    sigmoidLayer('Name','MeanTanh')
+    scalingLayer('Name','MeanScaling','Scale',10)
     ];
 stdPath = [
-    fullyConnectedLayer(512,'Name','StdFC1')
+    fullyConnectedLayer(192,'Name','StdFC1')
     reluLayer('Name','StdRelu1')
-    fullyConnectedLayer(512,'Name','StdFC2')
+    fullyConnectedLayer(256,'Name','StdFC2')
     reluLayer('Name','StdRelu2')
-    fullyConnectedLayer(512,'Name','StdFC3')
+    fullyConnectedLayer(192,'Name','StdFC3')
     reluLayer('Name','StdRelu3')
     fullyConnectedLayer(numAct,'Name','StdFC4')
-%     softplusLayer('Name', 'vp_out')
     sigmoidLayer('Name','StdSig')
-    scalingLayer('Name','ActorScaling','Scale',0.1*thrust)
+    scalingLayer('Name','ActorScaling','Scale',thrust/10)
     ];
 concatPath = concatenationLayer(1,2,'Name','GaussianParameters');
 
@@ -93,14 +143,37 @@ actorNetwork = connectLayers(actorNetwork,'CommonRelu2','StdFC1/in');
 actorNetwork = connectLayers(actorNetwork,'MeanScaling','GaussianParameters/in1');
 actorNetwork = connectLayers(actorNetwork,'ActorScaling','GaussianParameters/in2');
 
-actorOptions = rlRepresentationOptions('Optimizer','adam','LearnRate',1e-4,...
-                                 'GradientThreshold',1,'L2RegularizationFactor',1e-5);
+actorOptions = rlRepresentationOptions('Optimizer','adam','LearnRate',2e-4,...
+                                 'GradientThreshold',1);
 if gpuDeviceCount("available")
     actorOpts.UseDevice = 'gpu';
 end
 
 actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,actorOptions,...
     'Observation',{'observation'});
+%%
+% create the network to be used as approximator in the critic
+% it must take the observation signal as input and produce a scalar value
+criticNet = [
+    featureInputLayer(numObs,'Normalization','none','Name','state')
+    fullyConnectedLayer(192,'Name', 'fc1')
+    reluLayer('Name', 'relu1')
+    fullyConnectedLayer(256,'Name', 'fc2')
+    reluLayer('Name', 'relu2')
+    fullyConnectedLayer(256,'Name', 'fc3')
+    reluLayer('Name', 'relu3')
+    fullyConnectedLayer(192,'Name', 'fc4')
+    reluLayer('Name', 'relu4')
+    fullyConnectedLayer(1,'Name','out')
+    ];
+
+% set some training options for the critic
+criticOpts = rlRepresentationOptions('LearnRate',2e-4,'GradientThreshold',1);
+if gpuDeviceCount("available")
+    criticOpts.UseDevice = 'gpu';
+end
+% create the critic representation from the network
+critic = rlValueRepresentation(criticNet,obsInfo,'Observation',{'state'},criticOpts);
 %%
 agentOpts = rlPPOAgentOptions('SampleTime',0.01);
 agent = rlPPOAgent(actor,critic,agentOpts);
@@ -116,18 +189,15 @@ trainOpts = rlTrainingOptions(...
     'Verbose',false, ...
     'StopTrainingCriteria',"AverageReward",...
     'StopTrainingValue',10000000,...
-    'ScoreAveragingWindowLength',50);
+    'ScoreAveragingWindowLength',100);
 trainOpts.UseParallel = true;
 % trainOpts.ParallelizationOptions.StepsUntilDataIsSent = 2^11;
 % agent.AgentOptions.ClipFactor = 0.1;
 %%
 trainingStats = train(agent,env,trainOpts);
-% beta_rnd = betarnd(10,10,[size(Mean)]);
-% beta_rnd = (beta_rnd-mean(beta_rnd))/std(beta_rnd);
-% Action = Mean + StandardDeviation .* beta_rnd;
 %%
 agent.AgentOptions.UseDeterministicExploitation = true;
-simOptions = rlSimulationOptions('MaxSteps',5000);
+simOptions = rlSimulationOptions('MaxSteps',10000);
 experience = sim(env,agent,simOptions);
 t = experience.Observation.QuadStates.Time;
 xsave = squeeze(experience.Observation.QuadStates.Data(:,1,:));
@@ -195,6 +265,6 @@ hold on
 plot3(pos_ref(:,1),pos_ref(:,2),pos_ref(:,3),'--','Color','red')
 hold off
 %%
-filename = '0513_line_PPO_2.avi';
+filename = '0523_1.avi';
 target_fps = 50;
 video_gen(fig, t, State', filename, target_fps, Fext_hist)
