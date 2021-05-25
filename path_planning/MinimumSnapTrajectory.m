@@ -32,7 +32,7 @@ classdef MinimumSnapTrajectory < handle
          end
       end
       
-      function A = equalA(obj, tau, r)
+      function A = equalA(~, tau, r)
         %equalA constructs a matrix which maps the coefficients of the polynomial to 
         % equality constraints
         % Ax = b
@@ -108,7 +108,7 @@ classdef MinimumSnapTrajectory < handle
       end
       
       % Cost Q
-      function Q = costMat(obj, tau, r)
+      function Q = costMat(~, tau, r)
         n = 2*r+1;
         Q = zeros(n+1);
         QQ = zeros(n+1,n+1,length(r));
@@ -142,7 +142,7 @@ classdef MinimumSnapTrajectory < handle
         end
       end
       
-      function [Rff,Rfp,Rpf,Rpp] = seg_R(obj, R)
+      function [Rff,Rfp,Rpf,Rpp] = seg_R(~, R)
         m = length(R)/10;
         unkns = 4*(m-1);
         Rff = R(1:end-unkns,1:end-unkns);

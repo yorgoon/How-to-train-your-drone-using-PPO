@@ -53,7 +53,7 @@ meanTanh1Path = [
 meanTanh2Path = [
     scalingLayer('Name','meanScaling2','Bias',-1.5)
     tanhLayer('Name','meantanh2')
-    scalingLayer('Name','meantanh2scaling','Scale',5-(thrust/2),'Bias', 5-(thrust/2))
+    scalingLayer('Name','meantanh2scaling','Scale',7.5-(thrust/2),'Bias', 7.5-(thrust/2))
     ];
 add = additionLayer(2,'Name','add_1');
 
@@ -273,6 +273,6 @@ hold on
 plot3(pos_ref(:,1),pos_ref(:,2),pos_ref(:,3),'--','Color','red')
 hold off
 %%
-filename = '0524_1.avi';
+filename = '0526_1.avi';
 target_fps = 50;
 video_gen(fig, t, State', filename, target_fps, Fext_hist)

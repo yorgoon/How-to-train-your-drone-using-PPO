@@ -83,7 +83,12 @@ yaw_error = abs(state(9));
 % Incentive on flipping (z_axis pointing downward)
 z_axis = R(:,3);
 % Cosine similarity between z_axis and acceleration direction
-z_cos = 1-abs(getCosineSimilarity(z_axis,state_dot(4:6)));
+if desired_state.acc == zeros(3,1)
+    z_cos = acc_l2;
+else
+    z_cos = 1-getCosineSimilarity(z_axis,desired_state.acc);
+end
+
 
 % Rewards
 % tau_pos = 0.35/2.5*vel;
@@ -103,9 +108,9 @@ r_yaw = exp(-(1/(5*pi/180) * yaw_error).^2);
 % r_action = exp(-(1/2 * std_action)^2);
 % r_action = exp(-(1/8 * action_l2)^2);
 % r_action = exp(-0.001*action_l2^2); % For imitation learning
-r_z_axis = exp(-(1/0.1 * z_cos).^2);
+r_z_axis = exp(-(1/0.5 * z_cos).^2);
 
-rewards = [0.4 0.1 0.5] .* [r_pos r_vel r_z_axis];
+rewards = [0.4 0.1 0.1 0.4] .* [r_pos r_vel r_acc r_z_axis];
 
 
 fprintf('r,e: %f %f %f %f %f| %f %f %f %f %f\n',r_pos,r_vel,r_acc,r_yaw,r_z_axis, pos_l2,vel_l2,acc_l2,yaw_error*180/pi,z_cos)
