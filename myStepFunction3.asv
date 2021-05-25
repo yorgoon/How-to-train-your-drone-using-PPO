@@ -83,7 +83,7 @@ yaw_error = abs(state(9));
 % Incentive on flipping (z_axis pointing downward)
 z_axis = R(:,3);
 z_axis_error = -1 - z_axis(end);
-
+desired_state.vel
 % Rewards
 % tau_pos = 0.35/2.5*vel;
 % tau_vel = 1.5/2.5*vel;
@@ -104,7 +104,7 @@ r_yaw = exp(-(1/(5*pi/180) * yaw_error).^2);
 % r_action = exp(-0.001*action_l2^2); % For imitation learning
 r_z_axis = exp(-(1/1 * z_axis_error).^2);
 
-if Time < 1.75
+if Time < 2.25
     rewards = [0.6 0.1 0.1 0.2] .* [r_pos r_vel r_acc r_yaw];
 else
     rewards = [0.6 0.1 0.1 0.2] .* [r_pos r_vel r_acc r_z_axis];
