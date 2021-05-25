@@ -82,8 +82,8 @@ yaw_error = abs(state(9));
 % action_l2 = norm(Action);
 % Incentive on flipping (z_axis pointing downward)
 z_axis = R(:,3);
-% Cosine similarity between z_axis and velocity vector
-z_cos = abs(getCosineSimilarity(z_axis,state(4:6)));
+% Cosine similarity between z_axis and acceleration direction
+z_cos = 1-abs(getCosineSimilarity(z_axis,state_dot(4:6)));
 
 % Rewards
 % tau_pos = 0.35/2.5*vel;

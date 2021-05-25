@@ -10,7 +10,7 @@ z = r.*sin(theta)+r;
 PATH1 = [x',y',z';5,y(end)+1,0];
 PATH1 = PATH1+[5,-9,0];
 PATH = [zeros(1,3);PATH1];
-Tau_vec = desired_trajectory(PATH, gamma)';
+% Tau_vec = desired_trajectory(PATH, gamma)';
 
 %%
 Tau_vec =[1.7620,...
@@ -44,3 +44,51 @@ figure(1)
 plot3(pos_ref(:,1),pos_ref(:,2),pos_ref(:,3),'.')
 grid on
 axis equal
+
+
+% Trajectory
+traj_class = MinimumSnapTrajectory(Tau_vec, PATH);
+P = traj_class.P;
+t = sum(Tau_vec);
+dt = 0.1;
+ts = 0.01:dt:t*0.999;
+pos = [];
+vel = [];
+acc = [];
+for i=1:length(ts)
+    desired_state = desired_state_optimal(Tau_vec, ts(i), PATH, P);
+    pos = [pos, desired_state.pos];
+    vel = [vel, desired_state.vel];
+    acc = [acc, desired_state.acc];
+end
+pos = pos';
+vel = vel';
+acc = acc';
+% pos = getPos(Tau_vec, ts', traj_class.P);
+% vel = diff(pos)/dt;
+% acc = diff(vel)/dt;
+% scale factor
+vel = vel*0.5;
+acc = acc*0.1;
+% Trajectory
+fig = figure(1);
+
+plot3(pos(:,1),pos(:,2),pos(:,3), 'LineWidth',2.0)
+xlabel('x');ylabel('y');zlabel('z')
+axis equal
+grid on
+hold on
+% Velocity
+for i=1:length(vel)
+    traj = plot3([pos(i,1),pos(i,1)+vel(i,1)],[pos(i,2),pos(i,2)+vel(i,2)], [pos(i,3),pos(i,3)+vel(i,3)], '-r');
+    traj.Color(4) = 0.6;
+end
+for i=1:length(acc)
+    traj = plot3([pos(i,1),pos(i,1)+acc(i,1)],[pos(i,2),pos(i,2)+acc(i,2)], [pos(i,3),pos(i,3)+acc(i,3)], '-b');
+    traj.Color(4) = 0.6;
+end
+% Way points
+for i=1:size(PATH, 1)
+    plot3(PATH(i,1),PATH(i,2),PATH(i,3), '*g', 'MarkerSize',20.0)
+end
+hold off
