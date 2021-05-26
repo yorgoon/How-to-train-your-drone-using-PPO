@@ -1,4 +1,4 @@
-function [NextObs, Reward, IsDone, LoggedSignals] = myStepFunction3(Action, LoggedSignals)
+function [NextObs, Reward, IsDone, LoggedSignals] = myStep(Action, LoggedSignals)
 % Custom step function to construct quadrotor environment for the function
 % name case.
 %
@@ -111,7 +111,6 @@ r_yaw = exp(-(1/(5*pi/180) * yaw_error).^2);
 r_z_axis = exp(-(1/0.5 * z_cos).^2);
 
 rewards = [0.45 0.1 0.45] .* [r_pos r_vel r_z_axis];
-
 
 fprintf('r,e: %f %f %f %f %f| %f %f %f %f %f\n',r_pos,r_vel,r_acc,r_yaw,r_z_axis, pos_l2,vel_l2,acc_l2,yaw_error*180/pi,z_cos)
 fprintf('Actions: %f %f %f %f\n',Action(1),Action(2),Action(3),Action(4))

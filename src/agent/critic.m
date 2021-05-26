@@ -1,6 +1,7 @@
-function critic = critic()
+function critic = critic(obsInfo)
 % create the network to be used as approximator in the critic
 % it must take the observation signal as input and produce a scalar value
+numObs = obsInfo.Dimension(1);
 criticNet = [
     featureInputLayer(numObs,'Normalization','none','Name','state')
     fullyConnectedLayer(192,'Name', 'fc1')

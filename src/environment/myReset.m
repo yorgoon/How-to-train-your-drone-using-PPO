@@ -1,4 +1,4 @@
-function [InitialObservation, LoggedSignal] = myResetFunction3()
+function [InitialObservation, LoggedSignal] = myReset()
 % Reset function to place custom quadrotor environment into a random
 
 % Set global variables
@@ -59,20 +59,31 @@ Time = 0;
 % Tau_vec = [2.3885 0.2174 0.3832 0.4577 0.4577 0.3832 0.2174 2.3885]';
 
 % Spiral roll
-r = 1;
-roll_num = 3;
+% Pre acceleration
 pre = 10;
-theta = linspace(-pi/2,roll_num*2*pi-pi/2,roll_num*4+1);
-x = r.*cos(theta);
-y = linspace(pre,2*pre,length(theta));
-z = r.*sin(theta)+r;
-PATH1 = [x',y',z';5,y(end)+1,0];
-PATH1 = PATH1+[5,-9,0];
-PATH = [zeros(1,3);PATH1];
+% Theta; Specifies number of roll
+roll_num = 3;
+% Number of points on a circle
+pts_circle = 5;
+angle_0 = -pi/2;
+theta = linspace(angle_0, roll_num*2*pi + angle_0, roll_num*pts_circle+1);
+% Circle stride
+ds = linspace(0,10,length(theta));
+% Nominal radius
+r = 1;
+% X,Y,Z
+x = r.*cos(theta) + ds;
+y = linspace(pre,1*pre,length(theta));
+z = (r.*sin(theta)+r)*3;
+% Way points
+PATH = [x',y',z';pre/2+ds(end),y(end),0];
+PATH = PATH+[pre/2, -y(1), 0];
+PATH = [zeros(1,3);PATH];
+% Time intervals
 Tau_vec = zeros(length(PATH)-1,1);
-Tau_vec(2:end-1) = 0.35;
-Tau_vec(1) = 1.6;
-Tau_vec(end) = 1.6;
+Tau_vec(2:end-1) = 0.5;
+Tau_vec(1) = 1.75;
+Tau_vec(end) = 1.75;
 
 % Trajectory
 traj = MinimumSnapTrajectory(Tau_vec, PATH);

@@ -1,5 +1,19 @@
-function actor = actor()
+function actor = actor(obsInfo, actInfo)
 % input path layers (2 by 1 input and a 1 by 1 output)
+numObs = obsInfo.Dimension(1);
+numAct = actInfo.Dimension(1);
+% Model parameters
+S.g = 9.807; % Gravity
+S.mb = 1.477; % Mass of UAV
+S.d = 0.263; % Arm Length (Rotor and COM of UAV)
+S.c = 8.004e-4; % Drag Factor
+S.Ib = [0.01152; 0.01152; 0.0218]; % Moment of Inertia of UAV
+% S.Ib = [0.01152 0 0;0 0.01152 0;0 0 0.0218];
+S.m1 = 0.05; % Mass of First Link
+S.m2 = 0.05; % Mass of Second Link
+S.l1 = 0.5; % Length of First Link
+S.l2 = 0.5; % Length of Second Link
+thrust = (S.mb)*S.g/4;
 statePath = [
     featureInputLayer(numObs,'Normalization','none','Name','observation')
     fullyConnectedLayer(192, 'Name','commonFC1')
@@ -63,13 +77,66 @@ actorNetwork = connectLayers(actorNetwork,'CommonRelu2','StdFC1/in');
 actorNetwork = connectLayers(actorNetwork,'add_1','GaussianParameters/in1');
 actorNetwork = connectLayers(actorNetwork,'ActorScaling','GaussianParameters/in2');
 
-actorOptions = rlRepresentationOptions('Optimizer','adam','LearnRate',2e-4,...
+actorOpts = rlRepresentationOptions('Optimizer','adam','LearnRate',2e-4,...
                                  'GradientThreshold',1);
 if gpuDeviceCount("available")
     actorOpts.UseDevice = 'gpu';
 end
 
-actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,actorOptions,...
+actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,actorOpts,...
     'Observation',{'observation'});
-
+% % input path layers (2 by 1 input and a 1 by 1 output)
+% statePath = [
+%     featureInputLayer(numObs,'Normalization','none','Name','observation')
+%     fullyConnectedLayer(192, 'Name','commonFC1')
+%     reluLayer('Name','CommonRelu1')
+%     fullyConnectedLayer(256, 'Name','commonFC3')
+%     reluLayer('Name','CommonRelu3')
+%     fullyConnectedLayer(256, 'Name','commonFC4')
+%     reluLayer('Name','CommonRelu4')
+%     fullyConnectedLayer(192, 'Name','commonFC2')
+%     reluLayer('Name','CommonRelu2')
+%     ];
+% meanPath = [
+%     fullyConnectedLayer(192,'Name','MeanFC1')
+%     reluLayer('Name','MeanRelu1')
+%     fullyConnectedLayer(256,'Name','MeanFC2')
+%     reluLayer('Name','MeanRelu2')
+%     fullyConnectedLayer(192,'Name','MeanFC3')
+%     reluLayer('Name','MeanRelu3')
+%     fullyConnectedLayer(numAct,'Name','Mean')
+% %     scalingLayer('Name','tanhScaling','Scale',1/2,'Bias',-1.8)
+%     sigmoidLayer('Name','MeanTanh')
+%     scalingLayer('Name','MeanScaling','Scale',10)
+%     ];
+% stdPath = [
+%     fullyConnectedLayer(192,'Name','StdFC1')
+%     reluLayer('Name','StdRelu1')
+%     fullyConnectedLayer(256,'Name','StdFC2')
+%     reluLayer('Name','StdRelu2')
+%     fullyConnectedLayer(192,'Name','StdFC3')
+%     reluLayer('Name','StdRelu3')
+%     fullyConnectedLayer(numAct,'Name','StdFC4')
+%     sigmoidLayer('Name','StdSig')
+%     scalingLayer('Name','ActorScaling','Scale',thrust/10)
+%     ];
+% concatPath = concatenationLayer(1,2,'Name','GaussianParameters');
+% 
+% actorNetwork = layerGraph(statePath);
+% actorNetwork = addLayers(actorNetwork,meanPath);
+% actorNetwork = addLayers(actorNetwork,stdPath);
+% actorNetwork = addLayers(actorNetwork,concatPath);
+% actorNetwork = connectLayers(actorNetwork,'CommonRelu2','MeanFC1/in');
+% actorNetwork = connectLayers(actorNetwork,'CommonRelu2','StdFC1/in');
+% actorNetwork = connectLayers(actorNetwork,'MeanScaling','GaussianParameters/in1');
+% actorNetwork = connectLayers(actorNetwork,'ActorScaling','GaussianParameters/in2');
+% 
+% actorOptions = rlRepresentationOptions('Optimizer','adam','LearnRate',2e-4,...
+%                                  'GradientThreshold',1);
+% if gpuDeviceCount("available")
+%     actorOpts.UseDevice = 'gpu';
+% end
+% 
+% actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,actorOptions,...
+%     'Observation',{'observation'});
 end

@@ -9,22 +9,22 @@ pts_circle = 5;
 angle_0 = -pi/2;
 theta = linspace(angle_0, roll_num*2*pi + angle_0, roll_num*pts_circle+1);
 % Circle stride
-ds = linspace(0,10,length(theta));
+ds = linspace(0,5,length(theta));
 % Nominal radius
 r = 1;
 % X,Y,Z
 x = r.*cos(theta) + ds;
-y = linspace(pre,1*pre,length(theta));
-z = (r.*sin(theta)+r)*3;
+y = linspace(pre,1.5*pre,length(theta));
+z = 2*r.*sin(theta)+r;
 % Way points
-PATH = [x',y',z';pre/2+ds(end),y(end),0];
-PATH = PATH+[pre/2, -y(1), 0];
+PATH = [x',y',z';pre/2+ds(end),y(end)+1,0];
+PATH = PATH+[pre/2, -y(1)+1, 0];
 PATH = [zeros(1,3);PATH];
 % Time intervals
 Tau_vec = zeros(length(PATH)-1,1);
-Tau_vec(2:end-1) = 0.5;
-Tau_vec(1) = 1.75;
-Tau_vec(end) = 1.75;
+Tau_vec(2:end-1) = 0.4;
+Tau_vec(1) = 1.5;
+Tau_vec(end) = 1.5;
 
 % Trajectory
 traj = MinimumSnapTrajectory(Tau_vec, PATH);
