@@ -1,21 +1,31 @@
 % Barrel roll
-r = 1;
-roll_num = 3;
-pre = 10;
-gamma = 20000;
-theta = linspace(-pi/2,roll_num*2*pi-pi/2,roll_num*4+1);
-x = r.*cos(theta);
-y = linspace(pre,2*pre,length(theta));
-z = r.*sin(theta)+r;
-PATH1 = [x',y',z';5,y(end)+1,0];
-PATH1 = PATH1+[5,-9,0];
-PATH = [zeros(1,3);PATH1];
-Tau_vec = desired_trajectory(PATH, gamma)';
+% Spiral roll
 
-%%
+% Pre acceleration
+pre = 10;
+% Theta; Specifies number of roll
+roll_num = 3;
+% Number of points on a circle
+pts_circle = 5;
+angle_0 = -pi/2;
+theta = linspace(angle_0, roll_num*2*pi + angle_0, roll_num*pts_circle+1);
+% Circle stride
+ds = linspace(0,10,length(theta));
+% Nominal radius
+r = 1;
+% X,Y,Z
+x = r.*cos(theta) + ds;
+y = linspace(pre,1.5*pre,length(theta));
+z = 1.5*r.*sin(theta)+r;
+% Way points
+PATH = [x',y',z';pre/2+ds(end),y(end)+1,0];
+PATH = PATH+[pre/2, -y(1)+1, 0];
+PATH = [zeros(1,3);PATH];
+% Time intervals
+Tau_vec = zeros(length(PATH)-1,1);
 Tau_vec(2:end-1) = 0.4;
-Tau_vec(1) = 1.75;
-Tau_vec(end) = 1.75;
+Tau_vec(1) = 1.5;
+Tau_vec(end) = 1.5;
 
 % Trajectory
 traj = MinimumSnapTrajectory(Tau_vec, PATH);
@@ -23,24 +33,31 @@ P = traj.P;
 t = sum(Tau_vec);
 dt = 0.1;
 ts = 0:dt:t;
+ts_pos = 0:0.001:t;
+pos_plot = [];
 pos = [];
 vel = [];
 acc = [];
+for i=1:length(ts_pos)
+    desired_state = desired_state_optimal(Tau_vec, ts_pos(i), PATH, P);
+    pos_plot = [pos_plot, desired_state.pos];
+end
 for i=1:length(ts)
     desired_state = desired_state_optimal(Tau_vec, ts(i), PATH, P);
     pos = [pos, desired_state.pos];
     vel = [vel, desired_state.vel];
     acc = [acc, desired_state.acc];
 end
+pos_plot = pos_plot';
 pos = pos';
 vel = vel';
 acc = acc';
 % scale factor
-vel = vel*0.5;
-acc = acc*0.1;
+vel = vel*0.1;
+acc = acc*0.01;
 fig = figure(1);
 
-plot3(pos(:,1),pos(:,2),pos(:,3), 'LineWidth',2.0)
+plot3(pos_plot(:,1),pos_plot(:,2),pos_plot(:,3), 'LineWidth',1.0)
 xlabel('x');ylabel('y');zlabel('z')
 axis equal
 grid on
