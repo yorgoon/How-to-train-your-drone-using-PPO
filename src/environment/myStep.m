@@ -99,21 +99,22 @@ end
 % r_vel = exp(-(1/tau_vel * vel_l2)^2);
 % r_acc = exp(-(1/tau_acc * acc_l2)^2);
 % r_yaw = exp(-(1/tau_yaw * yaw_error)^2);
-r_pos = exp(-(1/0.35 * pos_l2).^2);
-r_vel = exp(-(1/1.5 * vel_l2).^2);
-r_acc = exp(-(1/3 * acc_l2).^2);
-r_yaw = exp(-(1/(5*pi/180) * yaw_error).^2);
-% r_omega_z = exp(-omega_z^2);
-% r_omega = exp(-(1/(pi/2) * omega_l2).^2);
-% r_action = exp(-(1/2 * std_action)^2);
-% r_action = exp(-(1/8 * action_l2)^2);
-% r_action = exp(-0.001*action_l2^2); % For imitation learning
-r_z_axis = exp(-(1/0.5 * z_cos).^2);
+% r_pos = exp(-(1/0.35 * pos_l2).^2);
+% r_vel = exp(-(1/1.5 * vel_l2).^2);
+% r_acc = exp(-(1/3 * acc_l2).^2);
+% r_yaw = exp(-(1/(5*pi/180) * yaw_error).^2);
+% r_z_axis = exp(-(1/0.5 * z_cos).^2);
 
-rewards = [0.45 0.1 0.45] .* [r_pos r_vel r_z_axis];
+r_pos = betaReward(pos_l2, 0.5);
+r_vel = betaReward(vel_l2, 1.5);
+r_acc = betaReward(acc_l2, 3);
+r_yaw = betaReward(yaw_error, 5*pi/180);
+r_z_axis = betaReward(z_cos, 0.5);
+
+rewards = [0.4 0.1 0.1 0.4] .* [r_pos r_vel r_acc r_z_axis];
 
 fprintf('r,e: %f %f %f %f %f| %f %f %f %f %f\n',r_pos,r_vel,r_acc,r_yaw,r_z_axis, pos_l2,vel_l2,acc_l2,yaw_error*180/pi,z_cos)
-fprintf('Actions: %f %f %f %f\n',Action(1),Action(2),Action(3),Action(4))
+% fprintf('Actions: %f %f %f %f\n',Action(1),Action(2),Action(3),Action(4))
 
 % Termination reward
 reward_terminate = 0;
