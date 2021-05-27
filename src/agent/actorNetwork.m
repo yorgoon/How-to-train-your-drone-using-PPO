@@ -1,4 +1,4 @@
-function actor = actor(obsInfo, actInfo)
+function actor = actorNetwork(obsInfo, actInfo)
 % input path layers (2 by 1 input and a 1 by 1 output)
 numObs = obsInfo.Dimension(1);
 numAct = actInfo.Dimension(1);

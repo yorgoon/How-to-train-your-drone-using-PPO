@@ -1,4 +1,4 @@
-function critic = critic(obsInfo)
+function critic = criticNetwork(obsInfo)
 % create the network to be used as approximator in the critic
 % it must take the observation signal as input and produce a scalar value
 numObs = obsInfo.Dimension(1);
