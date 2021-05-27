@@ -86,7 +86,8 @@ z_axis = R(:,3);
 if desired_state.acc == zeros(3,1)
     z_cos = acc_l2;
 else
-    z_cos = 1-getCosineSimilarity(z_axis,desired_state.acc);
+%     z_cos = 1-getCosineSimilarity(z_axis,desired_state.acc);
+    z_cos = acos(getCosineSimilarity(z_axis,desired_state.acc));
 end
 
 
@@ -109,7 +110,7 @@ r_pos = betaReward(pos_l2, 0.5);
 r_vel = betaReward(vel_l2, 1.5);
 r_acc = betaReward(acc_l2, 3);
 r_yaw = betaReward(yaw_error, 5*pi/180);
-r_z_axis = betaReward(z_cos, 0.5);
+r_z_axis = betaReward(z_cos, 45/180*pi);
 
 rewards = [0.4 0.1 0.1 0.4] .* [r_pos r_vel r_acc r_z_axis];
 
