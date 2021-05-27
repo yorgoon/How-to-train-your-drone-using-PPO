@@ -1,11 +1,4 @@
-%% Loop the loop
-[Tau_vec, PATH] = loopTheLoop();
-%% Immelmann turn
-[Tau_vec, PATH] = immelmannTurn();
-%% Split S
-[Tau_vec, PATH] = splitS();
-%% Canopy roll
-[Tau_vec, PATH] = canopyRoll();
+[Tau_vec, PATH] = trajectoryRandomSelector();
 %% Trajectory
 traj = MinimumSnapTrajectory(Tau_vec, PATH);
 P = traj.P;

@@ -2,7 +2,7 @@ function [Tau_vec, PATH] = loopTheLoop()
 % Pre acceleration
 pre = 20;
 % Theta; Specifies number of roll
-roll_num = 2;
+roll_num = 1;
 % Number of points on a circle
 pts_circle = 5;
 angle_0 = -pi/2;
