@@ -10,9 +10,9 @@ actInfo.LowerLimit = [0 0 0 0]';
 % Define environment
 env = rlFunctionEnv(obsInfo,actInfo,'myStep','myReset');
 % Actor network
-actor = actor(obsInfo, actInfo);
+actor = actorNetwork(obsInfo, actInfo);
 % Critic network
-critic = critic(obsInfo);
+critic = criticNetwork(obsInfo);
 % Create agent
 agentOpts = rlPPOAgentOptions('SampleTime',0.01);
 agent = rlPPOAgent(actor,critic,agentOpts);
@@ -112,6 +112,6 @@ hold on
 plot3(pos_ref(:,1),pos_ref(:,2),pos_ref(:,3),'--','Color','red')
 hold off
 %%
-filename = '0526_2.avi';
+filename = '0527_1.avi';
 target_fps = 50;
 video_gen(fig, t, State', filename, target_fps, Fext_hist)
