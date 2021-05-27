@@ -82,14 +82,6 @@ yaw_error = abs(state(9));
 % action_l2 = norm(Action);
 % Incentive on flipping (z_axis pointing downward)
 z_axis = R(:,3);
-% Cosine similarity between z_axis and acceleration direction
-if desired_state.acc == zeros(3,1)
-    z_cos = acc_l2;
-else
-%     z_cos = 1-getCosineSimilarity(z_axis,desired_state.acc);
-    z_cos = acos(getCosineSimilarity(z_axis,desired_state.acc));
-end
-
 
 % Rewards
 % tau_pos = 0.35/2.5*vel;
@@ -110,11 +102,19 @@ r_pos = betaReward(pos_l2, 0.5);
 r_vel = betaReward(vel_l2, 1.5);
 r_acc = betaReward(acc_l2, 3);
 r_yaw = betaReward(yaw_error, 5*pi/180);
-r_z_axis = betaReward(z_cos, 45/180*pi);
+% Cosine similarity between z_axis and acceleration direction
+if desired_state.acc == zeros(3,1)
+    z_cos = acc_l2;
+    r_z_axis = betaReward(z_cos, 3);
+else
+%     z_cos = 1-getCosineSimilarity(z_axis,desired_state.acc);
+    z_cos = acos(getCosineSimilarity(z_axis,desired_state.acc));
+    r_z_axis = betaReward(z_cos, 45/180*pi);
+end
 
-rewards = [0.4 0.1 0.1 0.4] .* [r_pos r_vel r_acc r_z_axis];
+rewards = [0.5 0.1 0.1 0.3] .* [r_pos r_vel r_acc r_z_axis];
 
-fprintf('r,e: %f %f %f %f %f| %f %f %f %f %f\n',r_pos,r_vel,r_acc,r_yaw,r_z_axis, pos_l2,vel_l2,acc_l2,yaw_error*180/pi,z_cos)
+fprintf('r,e: %f %f %f %f %f| %f %f %f %f %f\n',r_pos,r_vel,r_acc,r_yaw,r_z_axis, pos_l2,vel_l2,acc_l2,yaw_error*180/pi,z_cos/pi*180)
 % fprintf('Actions: %f %f %f %f\n',Action(1),Action(2),Action(3),Action(4))
 
 % Termination reward

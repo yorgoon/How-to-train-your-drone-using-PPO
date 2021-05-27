@@ -24,7 +24,7 @@ State(7:9) = 10/180*pi * rand(3,1);
 State(10:12) = 10/180*pi * rand(3,1);
 Time = 0;
 
-
+% 
 % target = (2*rand(1,3)-1)*50;
 % tau_min = norm(target)/vel_max;
 % tau_max = norm(target)/vel_min;
@@ -43,47 +43,8 @@ Time = 0;
 % target = dist * random_unit_vec;
 % PATH = [zeros(1,3); target'];
 
-% Front flip
-% r = [1, 1.3, 1.5, 1.7, 1.5, 1.3, 1];
-% r = 1.5;
-% pre = 20;
-% gamma = 100000;
-% theta = linspace(-pi/2,2*pi-pi/2,7);
-% x = r.*cos(theta);
-% x = x+pre;
-% z = r.*sin(theta);
-% z = z+r;
-% PATH = [zeros(1,3);x',zeros(length(x),1),z';pre*2,0,0];
-% Tau_vec = desired_trajectory(PATH, gamma)';
-% Tau_vec = [2.2786 0.2400 0.3792 0.3740 0.3740 0.3792 0.2400 2.2786]';
-% Tau_vec = [2.3885 0.2174 0.3832 0.4577 0.4577 0.3832 0.2174 2.3885]';
-
-% Spiral roll
-% Pre acceleration
-pre = 10;
-% Theta; Specifies number of roll
-roll_num = 3;
-% Number of points on a circle
-pts_circle = 5;
-angle_0 = -pi/2;
-theta = linspace(angle_0, roll_num*2*pi + angle_0, roll_num*pts_circle+1);
-% Circle stride
-ds = linspace(0,10,length(theta));
-% Nominal radius
-r = 1;
-% X,Y,Z
-x = r.*cos(theta) + ds;
-y = linspace(pre,1*pre,length(theta));
-z = (r.*sin(theta)+r)*3;
-% Way points
-PATH = [x',y',z';pre/2+ds(end),y(end),0];
-PATH = PATH+[pre/2, -y(1), 0];
-PATH = [zeros(1,3);PATH];
-% Time intervals
-Tau_vec = zeros(length(PATH)-1,1);
-Tau_vec(2:end-1) = 0.5;
-Tau_vec(1) = 1.75;
-Tau_vec(end) = 1.75;
+% Random aerobatic trajectory generation
+[Tau_vec, PATH] = trajectoryRandomSelector();
 
 % Trajectory
 traj = MinimumSnapTrajectory(Tau_vec, PATH);

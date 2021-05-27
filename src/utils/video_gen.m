@@ -5,7 +5,7 @@ grid on
 hold on
 Q = FramePlot(tsave(1), xsave(1,:), Fmat(:,1), fv);
 set(gcf,'Renderer','OpenGL')
-v = VideoWriter(filename);
+v = VideoWriter(filename,'MPEG-4');
 v.FrameRate = target_fps;
 open(v)
 
@@ -20,5 +20,6 @@ for i=2:skip_interval:length(xsave(:,1))
 end
 hold off
 close(v);
+disp('Video generated.')
 end
 
