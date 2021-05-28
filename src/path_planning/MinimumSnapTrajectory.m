@@ -39,7 +39,7 @@ classdef MinimumSnapTrajectory < handle
         % r: The order of derivative subjected to optimization
         % Full control from 0th to rth derivatives => nth order poly = (2r+1)th
 
-        % nth order order poly
+        % nth order order polynomial
         n = 2*r+1;
         A0 = zeros(r+1,n+1);
         Atau = zeros(r+1,n+1);

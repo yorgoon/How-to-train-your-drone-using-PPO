@@ -14,16 +14,16 @@ S.m2 = 0.05; % Mass of Second Link
 S.l1 = 0.5; % Length of First Link
 S.l2 = 0.5; % Length of Second Link
 S.g = 9.807; % Gravity
-global Step State Time Tau_vec PATH P Action_hist Fext Fext_hist vel;
+global Step Time State Traj Action_hist Fext Fext_hist;
 % global Mext external_callback reward_accum;
 
 % Sample time
 ts = 0.01;
+% Total time
+total_time = 10;
 
+% Advance step
 Step = Step + 1;
-
-% Total execution time
-total_time = sum(Tau_vec);
 
 % Update time
 Time = Time + ts;
@@ -32,7 +32,7 @@ Time = Time + ts;
 state = State(:,end);
 
 % Desired state
-desired_state = desired_state_optimal(Tau_vec, Time, PATH, P);
+desired_state = desiredState(Traj, Time);
 
 % % Reference controller (Comment out)
 % action_ref_control = reference_controller(state, desired_state, S);
@@ -74,7 +74,7 @@ State = [State, state];
 pos_l2 = norm(pos_error);
 vel_l2 = norm(vel_error);
 acc_l2 = norm(acc_error);
-yaw_error = abs(state(9));
+% yaw_error = abs(state(9));
 % omega_z = abs(state(12));
 % omega_z_dot = abs(state_dot(end));
 % omega_l2 = norm(state(10:12));
@@ -101,7 +101,7 @@ z_axis = R(:,3);
 r_pos = betaReward(pos_l2, 0.5);
 r_vel = betaReward(vel_l2, 1.5);
 r_acc = betaReward(acc_l2, 3);
-r_yaw = betaReward(yaw_error, 5*pi/180);
+% r_yaw = betaReward(yaw_error, 5*pi/180);
 % Cosine similarity between z_axis and acceleration direction
 if desired_state.acc == zeros(3,1)
     z_cos = acc_l2;
@@ -112,9 +112,9 @@ else
     r_z_axis = betaReward(z_cos, 45/180*pi);
 end
 
-rewards = [0.5 0.1 0.1 0.3] .* [r_pos r_vel r_acc r_z_axis];
+rewards = [0.55 0.1 0.1 0.25] .* [r_pos r_vel r_acc r_z_axis];
 
-fprintf('r,e: %f %f %f %f %f| %f %f %f %f %f\n',r_pos,r_vel,r_acc,r_yaw,r_z_axis, pos_l2,vel_l2,acc_l2,yaw_error*180/pi,z_cos/pi*180)
+% fprintf('r,e: %f %f %f %f %f| %f %f %f %f %f\n',r_pos,r_vel,r_acc,r_yaw,r_z_axis, pos_l2,vel_l2,acc_l2,yaw_error*180/pi,z_cos/pi*180)
 % fprintf('Actions: %f %f %f %f\n',Action(1),Action(2),Action(3),Action(4))
 
 % Termination reward

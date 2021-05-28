@@ -1,5 +1,6 @@
+% Random selector
 [Tau_vec, PATH] = trajectoryRandomSelector();
-%% Trajectory
+% Trajectory
 traj = MinimumSnapTrajectory(Tau_vec, PATH);
 P = traj.P;
 t = sum(Tau_vec);

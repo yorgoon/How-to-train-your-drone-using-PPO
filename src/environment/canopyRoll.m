@@ -10,7 +10,7 @@ theta = linspace(angle_0, pi/6, roll_num*pts_circle+1);
 % Circle stride
 dx = linspace(0,0,length(theta));
 % Nominal radius
-r = 4;
+r = 6;
 % X,Y,Z
 x = linspace(pre,2*pre,length(theta));
 y = r.*cos(theta) + r;

@@ -1,4 +1,4 @@
-function [Tau_vec, PATH] = trajectoryRandomSelector()
+function [Tau_vec, PATH] = randomTrajectorySelector()
 % Number of trajectories
 num = 4;
 traj_num = randi(num);

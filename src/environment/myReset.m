@@ -2,11 +2,10 @@ function [InitialObservation, LoggedSignal] = myReset()
 % Reset function to place custom quadrotor environment into a random
 
 % Set global variables
-global Step State Tau_vec PATH P Time Action_hist Fext Fext_hist Mext external_callback reward_accum vel;
+global Step Time State Traj Action_hist Fext Fext_hist Mext external_callback;
 
 Action_hist = zeros(4,1);
 Fext_hist = zeros(3,1);
-reward_accum = 0;
 external_callback = true;
 % Random force with random direction;
 Fext = 0 * rand * random_unit_vector; % 0~1N (about apple weight)
@@ -44,14 +43,13 @@ Time = 0;
 % PATH = [zeros(1,3); target'];
 
 % Random aerobatic trajectory generation
-[Tau_vec, PATH] = trajectoryRandomSelector();
+[tau_vec, path] = randomTrajectorySelector();
 
 % Trajectory
-traj = MinimumSnapTrajectory(Tau_vec, PATH);
-P = traj.P;
+Traj = MinimumSnapTrajectory(tau_vec, path);
 
 % Desired initial state
-desired_state0 = desired_state_optimal(Tau_vec, Time, PATH, P);
+desired_state0 = desiredState(Traj, Time);
 
 % initial state.
 pos_e0 = State(1:3) - desired_state0.pos;

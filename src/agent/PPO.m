@@ -42,9 +42,11 @@ t = experience.Observation.QuadStates.Time;
 xsave = squeeze(experience.Observation.QuadStates.Data(:,1,:));
 action = squeeze(experience.Action.QuadAction.Data(:,1,:));
 %
-global Tau_vec P State Action_hist;
-t_ref = 0.01:0.01:sum(Tau_vec)*0.999;
-pos_ref = getPos(Tau_vec, t_ref', P);
+global Traj State Action_hist;
+tau_vec = Traj.tau_vec;
+P = Traj.P;
+t_ref = 0.01:0.01:sum(tau_vec)*0.999;
+pos_ref = getPos(tau_vec, t_ref', P);
 figure(1)
 subplot(2,1,1)
 plot(t, State(1,:),'Color','red')
@@ -93,14 +95,6 @@ plot(t(10:end), action_filtered(3,9:end))
 plot(t(10:end), action_filtered(4,9:end))
 grid on
 hold off
-
-plot(t, Action_hist(1,:))
-hold on
-grid on
-plot(t, Action_hist(2,:))
-plot(t, Action_hist(3,:))
-plot(t, Action_hist(4,:))
-hold off
 %%  
 global Fext_hist;
 size(Fext_hist)
@@ -112,6 +106,6 @@ hold on
 plot3(pos_ref(:,1),pos_ref(:,2),pos_ref(:,3),'--','Color','red')
 hold off
 %%
-filename = '0527_3';
+filename = '../videos/0528_canopy_1';
 target_fps = 50;
 video_gen(fig, t, State', filename, target_fps, Fext_hist)
