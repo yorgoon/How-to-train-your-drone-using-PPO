@@ -43,8 +43,8 @@ Time = 0;
 % PATH = [zeros(1,3); target'];
 
 % Random aerobatic trajectory generation
-[tau_vec, path] = randomTrajectorySelector();
-
+% [tau_vec, path] = randomTrajectorySelector();
+[tau_vec, path] = canopyRoll();
 % Trajectory
 Traj = MinimumSnapTrajectory(tau_vec, path);
 

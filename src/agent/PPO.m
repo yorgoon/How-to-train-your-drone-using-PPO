@@ -106,6 +106,6 @@ hold on
 plot3(pos_ref(:,1),pos_ref(:,2),pos_ref(:,3),'--','Color','red')
 hold off
 %%
-filename = '../videos/0528_canopy_1';
+filename = '../videos/0529_canopy_1';
 target_fps = 50;
 video_gen(fig, t, State', filename, target_fps, Fext_hist)

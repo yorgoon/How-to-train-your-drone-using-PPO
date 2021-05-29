@@ -19,7 +19,7 @@ z = (r.*sin(theta)+r);
 PATH = [x',y',z'];
 PATH = PATH+[pre/2, -y(1), 0];
 PATH = [zeros(1,3);PATH];
-PATH = [PATH;0,0,2*r];
+PATH = [PATH;0,5,2*r];
 % Stride along y axis
 dy = linspace(0,0,length(PATH));
 PATH(:,2,:) = PATH(:,2,:) + dy';
@@ -27,6 +27,6 @@ PATH(:,2,:) = PATH(:,2,:) + dy';
 Tau_vec = zeros(length(PATH)-1,1);
 Tau_vec(2:end-1) = 0.5;
 Tau_vec(1) = 1.75;
-Tau_vec(end) = 1.75;
+Tau_vec(end) = Tau_vec(1);
 end
 

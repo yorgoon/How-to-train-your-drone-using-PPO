@@ -1,5 +1,6 @@
 % Random selector
-[Tau_vec, PATH] = trajectoryRandomSelector();
+[Tau_vec, PATH] = splitS();
+
 % Trajectory
 traj = MinimumSnapTrajectory(Tau_vec, PATH);
 P = traj.P;
@@ -12,11 +13,11 @@ pos = [];
 vel = [];
 acc = [];
 for i=1:length(ts_pos)
-    desired_state = desired_state_optimal(Tau_vec, ts_pos(i), PATH, P);
+    desired_state = desiredState(traj, ts_pos(i));
     pos_plot = [pos_plot, desired_state.pos];
 end
 for i=1:length(ts)
-    desired_state = desired_state_optimal(Tau_vec, ts(i), PATH, P);
+    desired_state = desiredState(traj, ts(i));
     pos = [pos, desired_state.pos];
     vel = [vel, desired_state.vel];
     acc = [acc, desired_state.acc];
@@ -27,7 +28,7 @@ vel = vel';
 acc = acc';
 % scale factor
 vel = vel*0.1;
-acc = acc*0.01;
+acc = acc*0.1;
 fig = figure(1);
 
 plot3(pos_plot(:,1),pos_plot(:,2),pos_plot(:,3), 'LineWidth',1.0)

@@ -1,6 +1,6 @@
 function [Tau_vec, PATH] = loopTheLoop()
 % Pre acceleration
-pre = 20;
+pre = 10;
 % Theta; Specifies number of roll
 roll_num = 1;
 % Number of points on a circle
@@ -24,8 +24,8 @@ dy = linspace(0,0,length(PATH));
 PATH(:,2,:) = PATH(:,2,:) + dy';
 % Time intervals
 Tau_vec = zeros(length(PATH)-1,1);
-Tau_vec(2:end-1) = 0.5;
-Tau_vec(1) = 1.75;
-Tau_vec(end) = 1.75;
+Tau_vec(2:end-1) = 0.65;
+Tau_vec(1) = 2;
+Tau_vec(end) = 2;
 end
 
