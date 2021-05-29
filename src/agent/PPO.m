@@ -106,6 +106,10 @@ hold on
 plot3(pos_ref(:,1),pos_ref(:,2),pos_ref(:,3),'--','Color','red')
 hold off
 %%
-filename = '../videos/0529_canopy_1';
+filename = '../videos/0529_immelman_2';
 target_fps = 50;
 video_gen(fig, t, State', filename, target_fps, Fext_hist)
+%%
+index = trainingStats.EpisodeIndex;
+rewards = trainingStats.EpisodeReward;
+average_rewards = trainingStats.AverageReward;

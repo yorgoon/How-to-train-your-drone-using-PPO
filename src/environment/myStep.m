@@ -20,7 +20,7 @@ global Step Time State Traj Action_hist Fext Fext_hist;
 % Sample time
 ts = 0.01;
 % Total time
-total_time = sum(Traj.tau_vec);
+total_time = sum(Traj.tau_vec)+2;
 
 % Advance step
 Step = Step + 1;

@@ -44,7 +44,7 @@ Time = 0;
 
 % Random aerobatic trajectory generation
 % [tau_vec, path] = randomTrajectorySelector();
-[tau_vec, path] = canopyRoll();
+[tau_vec, path] = immelmannTurn();
 % Trajectory
 Traj = MinimumSnapTrajectory(tau_vec, path);
 
