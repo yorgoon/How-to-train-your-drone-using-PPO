@@ -13,27 +13,30 @@ env = rlFunctionEnv(obsInfo,actInfo,'myStep','myReset');
 actor = actorNetwork(obsInfo, actInfo);
 % Critic network
 critic = criticNetwork(obsInfo);
-% Create agent
-agentOpts = rlPPOAgentOptions('SampleTime',0.01);
-agent = rlPPOAgent(actor,critic,agentOpts);
-%%
-agent.AgentOptions.ExperienceHorizon = 2^11;
-agent.AgentOptions.MiniBatchSize = 2^11;
-agent.AgentOptions.UseDeterministicExploitation = false;
-agent.AgentOptions.EntropyLossWeight = 0.4;
-%agent.AgentOptions.NumEpoch = 10;
-trainOpts = rlTrainingOptions(...
-    'MaxEpisodes',10000000, ...
-    'MaxStepsPerEpisode',10000, ...
-    'Verbose',false, ...
-    'StopTrainingCriteria',"AverageReward",...
-    'StopTrainingValue',10000000,...
-    'ScoreAveragingWindowLength',100);
-trainOpts.UseParallel = true;
-% trainOpts.ParallelizationOptions.StepsUntilDataIsSent = 2^11;
-% agent.AgentOptions.ClipFactor = 0.1;
-%%
-trainingStats = train(agent,env,trainOpts);
+%% Create agent
+for ii=5:10
+    agentOpts = rlPPOAgentOptions('SampleTime',0.01);
+    agent = rlPPOAgent(actor,critic,agentOpts);
+    %
+    agent.AgentOptions.ExperienceHorizon = 2^11;
+    agent.AgentOptions.MiniBatchSize = 2^11;
+    agent.AgentOptions.UseDeterministicExploitation = false;
+    agent.AgentOptions.EntropyLossWeight = 0.4;
+    trainOpts = rlTrainingOptions(...
+        'MaxEpisodes',3500, ...
+        'MaxStepsPerEpisode',10000, ...
+        'Verbose',false, ...
+        'Plots',"none",...
+        'StopTrainingCriteria',"AverageReward",...
+        'StopTrainingValue',10000000,...
+        'ScoreAveragingWindowLength',100);
+    trainOpts.UseParallel = true;
+    % trainOpts.ParallelizationOptions.StepsUntilDataIsSent = 2^11;
+    % agent.AgentOptions.ClipFactor = 0.1;
+    
+    trainingStats = train(agent,env,trainOpts);
+    save(sprintf('PPO_0530_beta_3500_%d.mat',ii))
+end
 %%
 agent.AgentOptions.UseDeterministicExploitation = true;
 simOptions = rlSimulationOptions('MaxSteps',10000);
@@ -106,6 +109,6 @@ hold on
 plot3(pos_ref(:,1),pos_ref(:,2),pos_ref(:,3),'--','Color','red')
 hold off
 %%
-filename = '../videos/0529_canopy_1';
+filename = '../videos/0530_canopy_1';
 target_fps = 50;
 video_gen(fig, t, State', filename, target_fps, Fext_hist)

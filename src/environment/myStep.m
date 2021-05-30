@@ -14,13 +14,13 @@ S.m2 = 0.05; % Mass of Second Link
 S.l1 = 0.5; % Length of First Link
 S.l2 = 0.5; % Length of Second Link
 S.g = 9.807; % Gravity
-global Step Time State Traj Action_hist Fext Fext_hist;
+global Step Time State Traj Action_hist Fext Fext_hist ii;
 % global Mext external_callback reward_accum;
 
 % Sample time
 ts = 0.01;
 % Total time
-total_time = sum(Traj.tau_vec);
+total_time = sum(Traj.tau_vec)+2;
 
 % Advance step
 Step = Step + 1;
@@ -74,7 +74,7 @@ State = [State, state];
 pos_l2 = norm(pos_error);
 vel_l2 = norm(vel_error);
 acc_l2 = norm(acc_error);
-% yaw_error = abs(state(9));
+yaw_error = abs(state(9));
 % omega_z = abs(state(12));
 % omega_z_dot = abs(state_dot(end));
 % omega_l2 = norm(state(10:12));
@@ -84,35 +84,28 @@ acc_l2 = norm(acc_error);
 z_axis = R(:,3);
 
 % Rewards
-% tau_pos = 0.35/2.5*vel;
-% tau_vel = 1.5/2.5*vel;
-% tau_acc = 3/2.5*vel;
-% tau_yaw = 5*pi/180/2.5*vel;
-% r_pos = exp(-(1/tau_pos * pos_l2)^2);
-% r_vel = exp(-(1/tau_vel * vel_l2)^2);
-% r_acc = exp(-(1/tau_acc * acc_l2)^2);
-% r_yaw = exp(-(1/tau_yaw * yaw_error)^2);
-% r_pos = exp(-(1/0.35 * pos_l2).^2);
-% r_vel = exp(-(1/1.5 * vel_l2).^2);
-% r_acc = exp(-(1/3 * acc_l2).^2);
+
+% r_pos = exp(-(1/0.5 * pos_l2).^2);
+% r_vel = exp(-(1/1 * vel_l2).^2);
+% r_acc = exp(-(1/1 * acc_l2).^2);
 % r_yaw = exp(-(1/(5*pi/180) * yaw_error).^2);
-% r_z_axis = exp(-(1/0.5 * z_cos).^2);
 
 r_pos = betaReward(pos_l2, 0.5);
 r_vel = betaReward(vel_l2, 1);
 r_acc = betaReward(acc_l2, 1);
-% r_yaw = betaReward(yaw_error, 5*pi/180);
-% Cosine similarity between z_axis and acceleration direction
-if desired_state.acc == zeros(3,1)
-    z_cos = acc_l2;
-    r_z_axis = betaReward(z_cos, 3);
-else
-%     z_cos = 1-getCosineSimilarity(z_axis,desired_state.acc);
-    z_cos = acos(getCosineSimilarity(z_axis,desired_state.acc));
-    r_z_axis = betaReward(z_cos, 45/180*pi);
-end
+r_yaw = betaReward(yaw_error, 5*pi/180);
 
-rewards = [0.6 0.1 0.1 0.2] .* [r_pos r_vel r_acc r_z_axis];
+% % Cosine similarity between z_axis and acceleration direction
+% if desired_state.acc == zeros(3,1)
+%     z_cos = acc_l2;
+%     r_z_axis = betaReward(z_cos, 3);
+% else
+% %     z_cos = 1-getCosineSimilarity(z_axis,desired_state.acc);
+%     z_cos = acos(getCosineSimilarity(z_axis,desired_state.acc));
+%     r_z_axis = betaReward(z_cos, 45/180*pi);
+% end
+
+rewards = [0.6 0.1 0.1 0.2] .* [r_pos r_vel r_acc r_yaw];
 
 % fprintf('r,e: %f %f %f %f %f| %f %f %f %f %f\n',r_pos,r_vel,r_acc,r_yaw,r_z_axis, pos_l2,vel_l2,acc_l2,yaw_error*180/pi,z_cos/pi*180)
 % fprintf('Actions: %f %f %f %f\n',Action(1),Action(2),Action(3),Action(4))

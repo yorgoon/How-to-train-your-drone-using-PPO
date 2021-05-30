@@ -23,28 +23,22 @@ State(7:9) = 10/180*pi * rand(3,1);
 State(10:12) = 10/180*pi * rand(3,1);
 Time = 0;
 
-% 
-% target = (2*rand(1,3)-1)*50;
-% tau_min = norm(target)/vel_max;
-% tau_max = norm(target)/vel_min;
-% PATH = [zeros(1,3); target];
-% Tau_vec = (tau_max-tau_min)*rand + tau_min;
-
-% random_unit_vec = random_unit_vector;
+random_unit_vec = random_unit_vector;
 % random_unit_vec(3) = abs(random_unit_vec(3));
-% 
-% vel_min = 1;
-% vel_max = 10 + 10*(1-abs(random_unit_vec(3)));
-% vel = (vel_max-vel_min)*rand + vel_min;
-% 
-% Tau_vec = 10;
-% dist = vel*Tau_vec;
-% target = dist * random_unit_vec;
-% PATH = [zeros(1,3); target'];
 
-% Random aerobatic trajectory generation
-% [tau_vec, path] = randomTrajectorySelector();
-[tau_vec, path] = canopyRoll();
+vel_min = 1;
+vel_max = 5;
+vel = (vel_max-vel_min)*rand + vel_min;
+
+tau_vec = 10;
+dist = vel*tau_vec;
+target = dist * random_unit_vec;
+path = [zeros(1,3); target'];
+
+% % Random aerobatic trajectory generation
+% % [tau_vec, path] = randomTrajectorySelector();
+% [tau_vec, path] = splitS();
+
 % Trajectory
 Traj = MinimumSnapTrajectory(tau_vec, path);
 
