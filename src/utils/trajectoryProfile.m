@@ -1,5 +1,5 @@
 % Random selector
-[Tau_vec, PATH] = immelmannTurn();
+[Tau_vec, PATH] = loopTheLoop();
 
 % Trajectory
 traj = MinimumSnapTrajectory(Tau_vec, PATH);

@@ -1,4 +1,5 @@
 % Observation and Action Information
+% Set global variables
 numObs = 16;
 obsInfo = rlNumericSpec([numObs 1]);
 obsInfo.Name = 'Quad States';
@@ -13,31 +14,29 @@ env = rlFunctionEnv(obsInfo,actInfo,'myStep','myReset');
 actor = actorNetwork(obsInfo, actInfo);
 % Critic network
 critic = criticNetwork(obsInfo);
-%% Create agent
-for ii=5:10
-    agentOpts = rlPPOAgentOptions('SampleTime',0.01);
-    agent = rlPPOAgent(actor,critic,agentOpts);
-    %
-    agent.AgentOptions.ExperienceHorizon = 2^11;
-    agent.AgentOptions.MiniBatchSize = 2^11;
-    agent.AgentOptions.UseDeterministicExploitation = false;
-    agent.AgentOptions.EntropyLossWeight = 0.4;
-    trainOpts = rlTrainingOptions(...
-        'MaxEpisodes',3500, ...
+% Options
+agentOpts = rlPPOAgentOptions('SampleTime',0.01,...
+    'ExperienceHorizon',2^11,...
+    'MiniBatchSize',2^11,...
+    'UseDeterministicExploitation',false,...
+    'EntropyLossWeight',0.4);
+
+trainOpts = rlTrainingOptions(...
+        'MaxEpisodes',5000, ...
         'MaxStepsPerEpisode',10000, ...
-        'Verbose',false,...
+        'Verbose',true,...
         'Plots',"none",...
-        'StopTrainingCriteria',"AverageReward",...
-        'StopTrainingValue',10000000,...
-        'ScoreAveragingWindowLength',100);
-    trainOpts.UseParallel = true;
-    % trainOpts.ParallelizationOptions.StepsUntilDataIsSent = 2^11;
-    % agent.AgentOptions.ClipFactor = 0.1;
-    
+        'StopTrainingCriteria',"GlobalStepCount",...
+        'StopTrainingValue',1000000000,...
+        'ScoreAveragingWindowLength',100,...
+        'UseParallel',true);
+%% Train loop
+for ii=1:10
+    agent = rlPPOAgent(actor,critic,agentOpts);
     trainingStats = train(agent,env,trainOpts);
-    save(sprintf('PPO_0530_beta_3500_%d.mat',ii))
+    save(sprintf('PPO_0531_noET_%d.mat',ii),'trainingStats')
 end
-%%
+%% Test
 agent.AgentOptions.UseDeterministicExploitation = true;
 simOptions = rlSimulationOptions('MaxSteps',10000);
 experience = sim(env,agent,simOptions);

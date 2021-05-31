@@ -14,7 +14,7 @@ S.m2 = 0.05; % Mass of Second Link
 S.l1 = 0.5; % Length of First Link
 S.l2 = 0.5; % Length of Second Link
 S.g = 9.807; % Gravity
-global Step Time State Traj Action_hist Fext Fext_hist ii;
+global Step Time State Traj Action_hist Fext Fext_hist;
 % global Mext external_callback reward_accum;
 
 % Sample time
@@ -85,27 +85,30 @@ z_axis = R(:,3);
 
 % Rewards
 
-% r_pos = exp(-(1/0.5 * pos_l2).^2);
-% r_vel = exp(-(1/1 * vel_l2).^2);
-% r_acc = exp(-(1/1 * acc_l2).^2);
-% r_yaw = exp(-(1/(5*pi/180) * yaw_error).^2);
+r_pos = exp(-(1/0.5 * pos_l2).^2);
+r_vel = exp(-(1/1 * vel_l2).^2);
+r_acc = exp(-(1/1 * acc_l2).^2);
+r_yaw = exp(-(1/(5*pi/180) * yaw_error).^2);
 
-r_pos = betaReward(pos_l2, 0.5);
-r_vel = betaReward(vel_l2, 1);
-r_acc = betaReward(acc_l2, 1);
-r_yaw = betaReward(yaw_error, 5*pi/180);
+% r_pos = betaReward(pos_l2, 0.5);
+% r_vel = betaReward(vel_l2, 1);
+% r_acc = betaReward(acc_l2, 1);
+% r_yaw = betaReward(yaw_error, 5*pi/180);
 
-% % Cosine similarity between z_axis and acceleration direction
-% if desired_state.acc == zeros(3,1)
-%     z_cos = acc_l2;
-%     r_z_axis = betaReward(z_cos, 3);
-% else
-% %     z_cos = 1-getCosineSimilarity(z_axis,desired_state.acc);
-%     z_cos = acos(getCosineSimilarity(z_axis,desired_state.acc));
+% Cosine similarity between z_axis and acceleration direction
+if desired_state.acc == zeros(3,1)
+    z_cos = acc_l2;
+    r_z_axis = exp(-(1/1 * acc_l2).^2);
+%     r_z_axis = betaReward(z_cos, 1);
+else
+%     z_cos = 1-getCosineSimilarity(z_axis,desired_state.acc);
+    z_cos = acos(getCosineSimilarity(z_axis,desired_state.acc));
 %     r_z_axis = betaReward(z_cos, 45/180*pi);
-% end
+    r_z_axis = exp(-(1/(45/180*pi) * z_cos).^2);
+end
 
 rewards = [0.6 0.1 0.1 0.2] .* [r_pos r_vel r_acc r_yaw];
+% rewards = [0.5 0.1 0.1 0.1 0.2] .* [r_pos r_vel r_acc r_yaw r_z_axis];
 
 % fprintf('r,e: %f %f %f %f %f| %f %f %f %f %f\n',r_pos,r_vel,r_acc,r_yaw,r_z_axis, pos_l2,vel_l2,acc_l2,yaw_error*180/pi,z_cos/pi*180)
 % fprintf('Actions: %f %f %f %f\n',Action(1),Action(2),Action(3),Action(4))
@@ -116,10 +119,16 @@ reward_terminate = 0;
 % Check termination condition
 IsDone = total_time <= Time;
 
-if pos_l2 > 1
-    IsDone = true;
-    reward_terminate = -1;
-end
+% if pos_l2 > 1
+%     IsDone = true;
+%     reward_terminate = -1;
+% end
+
+% if Time > 2 && Time < sum(Traj.tau_vec)-2 && z_cos > 90/180*pi
+%     IsDone = true;
+%     reward_terminate = -1;
+% end
+
 
 if ~IsDone
     Reward = sum(rewards);

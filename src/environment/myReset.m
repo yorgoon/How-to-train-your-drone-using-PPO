@@ -37,7 +37,7 @@ path = [zeros(1,3); target'];
 
 % % Random aerobatic trajectory generation
 % % [tau_vec, path] = randomTrajectorySelector();
-% [tau_vec, path] = splitS();
+% [tau_vec, path] = loopTheLoop();
 
 % Trajectory
 Traj = MinimumSnapTrajectory(tau_vec, path);

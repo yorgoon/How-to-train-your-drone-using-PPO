@@ -85,7 +85,7 @@ end
 
 actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,actorOpts,...
     'Observation',{'observation'});
-% % input path layers (2 by 1 input and a 1 by 1 output)
+% input path layers (2 by 1 input and a 1 by 1 output)
 % statePath = [
 %     featureInputLayer(numObs,'Normalization','none','Name','observation')
 %     fullyConnectedLayer(192, 'Name','commonFC1')
@@ -105,9 +105,8 @@ actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,actorOpts,.
 %     fullyConnectedLayer(192,'Name','MeanFC3')
 %     reluLayer('Name','MeanRelu3')
 %     fullyConnectedLayer(numAct,'Name','Mean')
-% %     scalingLayer('Name','tanhScaling','Scale',1/2,'Bias',-1.8)
-%     sigmoidLayer('Name','MeanTanh')
-%     scalingLayer('Name','MeanScaling','Scale',10)
+%     tanhLayer('Name','MeanTanh')
+%     scalingLayer('Name','MeanScaling','Scale',15/2,'Bias',15/2)
 %     ];
 % stdPath = [
 %     fullyConnectedLayer(192,'Name','StdFC1')
@@ -118,7 +117,7 @@ actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,actorOpts,.
 %     reluLayer('Name','StdRelu3')
 %     fullyConnectedLayer(numAct,'Name','StdFC4')
 %     sigmoidLayer('Name','StdSig')
-%     scalingLayer('Name','ActorScaling','Scale',thrust/10)
+%     scalingLayer('Name','ActorScaling','Scale',thrust*0.1)
 %     ];
 % concatPath = concatenationLayer(1,2,'Name','GaussianParameters');
 % 
@@ -131,12 +130,12 @@ actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,actorOpts,.
 % actorNetwork = connectLayers(actorNetwork,'MeanScaling','GaussianParameters/in1');
 % actorNetwork = connectLayers(actorNetwork,'ActorScaling','GaussianParameters/in2');
 % 
-% actorOptions = rlRepresentationOptions('Optimizer','adam','LearnRate',2e-4,...
+% actorOpts = rlRepresentationOptions('Optimizer','adam','LearnRate',2e-4,...
 %                                  'GradientThreshold',1);
 % if gpuDeviceCount("available")
 %     actorOpts.UseDevice = 'gpu';
 % end
 % 
-% actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,actorOptions,...
+% actor = rlStochasticActorRepresentation(actorNetwork,obsInfo,actInfo,actorOpts,...
 %     'Observation',{'observation'});
 end
