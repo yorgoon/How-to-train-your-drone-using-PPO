@@ -11,7 +11,7 @@ actInfo.LowerLimit = [0 0 0 0]';
 % Define environment
 env = rlFunctionEnv(obsInfo,actInfo,'myStep','myReset');
 % Actor network
-actor = actorNetwork(obsInfo, actInfo);
+actor = actorNetwork(obsInfo, actInfo,'single');
 % Critic network
 critic = criticNetwork(obsInfo);
 % Options
