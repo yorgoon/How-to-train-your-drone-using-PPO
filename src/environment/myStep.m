@@ -20,7 +20,7 @@ global Step Time State Traj Action_hist Fext Fext_hist;
 % Sample time
 ts = 0.01;
 % Total time
-total_time = sum(Traj.tau_vec)+2;
+total_time = sum(Traj.tau_vec)+1;
 
 % Advance step
 Step = Step + 1;
@@ -119,10 +119,10 @@ reward_terminate = 0;
 % Check termination condition
 IsDone = total_time <= Time;
 
-% if pos_l2 > 1
-%     IsDone = true;
-%     reward_terminate = -1;
-% end
+if pos_l2 > 1
+    IsDone = true;
+    reward_terminate = -1;
+end
 
 % if Time > 2 && Time < sum(Traj.tau_vec)-2 && z_cos > 90/180*pi
 %     IsDone = true;

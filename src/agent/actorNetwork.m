@@ -43,7 +43,7 @@ meanTanh1Path = [
 meanTanh2Path = [
     scalingLayer('Name','meanScaling2','Bias',-1.5)
     tanhLayer('Name','meantanh2')
-    scalingLayer('Name','meantanh2scaling','Scale',7.5-(thrust/2),'Bias', 7.5-(thrust/2))
+    scalingLayer('Name','meantanh2scaling','Scale',5-(thrust/2),'Bias', 5-(thrust/2))
     ];
 add = additionLayer(2,'Name','add_1');
 

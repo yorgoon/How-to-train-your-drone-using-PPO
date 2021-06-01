@@ -8,13 +8,12 @@ Action_hist = zeros(4,1);
 Fext_hist = zeros(3,1);
 external_callback = true;
 % Random force with random direction;
-Fext = 0 * rand * random_unit_vector; % 0~1N (about apple weight)
-
+Fext = 1 * rand * random_unit_vector; % 0~1N (about apple weight)
 % Random moment with random direction;
-% Mext = 0 * rand * random_unit_vector; % 0~1Nm
 rand_unit = [rand, rand, 0]';
 rand_unit = rand_unit/norm(rand_unit);
-Mext = 0 * rand * rand_unit;
+Mext = 0.1 * rand * rand_unit;
+
 Step = 0;
 State = zeros(12,1);
 State(1:3) = 0.1 * rand(3,1);
@@ -30,7 +29,7 @@ vel_min = 1;
 vel_max = 5;
 vel = (vel_max-vel_min)*rand + vel_min;
 
-tau_vec = 10;
+tau_vec = 9;
 dist = vel*tau_vec;
 target = dist * random_unit_vec;
 path = [zeros(1,3); target'];
@@ -61,4 +60,3 @@ LoggedSignal.State = s0;
 InitialObservation = LoggedSignal.State;
 
 end
-
