@@ -36,7 +36,7 @@ switch activation
             reluLayer('Name','MeanRelu3')
             fullyConnectedLayer(numAct,'Name','Mean')
             tanhLayer('Name','MeanTanh')
-            scalingLayer('Name','MeanScaling','Scale',10/2,'Bias',10/2)
+            scalingLayer('Name','MeanScaling','Scale',15/2,'Bias',15/2)
             ];
         stdPath = [
             fullyConnectedLayer(192,'Name','StdFC1')
@@ -89,7 +89,7 @@ switch activation
         meanTanh2Path = [
             scalingLayer('Name','meanScaling2','Bias',-1.5)
             tanhLayer('Name','meantanh2')
-            scalingLayer('Name','meantanh2scaling','Scale',5-(thrust/2),'Bias', 5-(thrust/2))
+            scalingLayer('Name','meantanh2scaling','Scale',15/2-(thrust/2),'Bias', 15/2-(thrust/2))
             ];
         add = additionLayer(2,'Name','add_1');
         stdPath = [
