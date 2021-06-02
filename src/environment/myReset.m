@@ -2,23 +2,23 @@ function [InitialObservation, LoggedSignal] = myReset()
 % Reset function to place custom quadrotor environment into a random
 
 % Set global variables
-global Step Time State Traj Action_hist Fext Fext_hist Mext external_callback;
+global Step Time State Traj Action_hist Fext Fext_hist Mext external_callback EMA;
 
 Action_hist = zeros(4,1);
 Fext_hist = zeros(3,1);
 external_callback = true;
 
 % Random force with random direction;
-Fext = 1 * rand * random_unit_vector; %
+Fext = 0 * rand * random_unit_vector;
 
 % Random torque with random direction on x-y plane;
 rand_unit_vec = random_unit_vector;
 rand_unit_vec(3) = 0;
 rand_unit_vec = rand_unit_vec/norm(rand_unit_vec);
-Mext = 0.263 * rand * rand_unit_vec;
+Mext = 0 * rand * rand_unit_vec;
 
 vel_min = 1;
-vel_max = 5;
+vel_max = 10;
 vel = (vel_max-vel_min)*rand + vel_min;
 
 tau_vec = 9;
@@ -58,5 +58,5 @@ s0 = [pos_e0;vel_e0;acc_e0;quat0';ang_vel_e0];
 
 LoggedSignal.State = s0;
 InitialObservation = LoggedSignal.State;
-
+EMA = InitialObservation;
 end

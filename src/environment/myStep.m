@@ -14,13 +14,14 @@ S.m2 = 0.05; % Mass of Second Link
 S.l1 = 0.5; % Length of First Link
 S.l2 = 0.5; % Length of Second Link
 S.g = 9.807; % Gravity
-global Step Time State Traj Action_hist Fext Fext_hist;
+% thrust = (S.mb)*S.g/4;
+global Step Time State Traj Action_hist Fext Fext_hist EMA;
 % global Mext external_callback reward_accum;
 
 % Sample time
 ts = 0.01;
 % Total time
-total_time = sum(Traj.tau_vec)+1;
+% total_time = sum(Traj.tau_vec)+1;
 
 % Advance step
 Step = Step + 1;
@@ -34,9 +35,6 @@ state = State(:,end);
 % Desired state
 desired_state = desiredState(Traj, Time);
 
-% % Reference controller (Comment out)
-% action_ref_control = reference_controller(state, desired_state, S);
-% Action = action_ref_control; 
 state_dot = droneDynamics(state, Action, S);
 
 % Update state
@@ -60,10 +58,11 @@ quat = rotm2quat(R);
 % ang_acc = state_dot(end-2:end);
 
 % Update Log
-% LoggedSignals.State = [pos_error;vel_error;acc_error;state(7:12)];
-% LoggedSignals.State = [pos_error;vel_error;state(7:12)];
-% LoggedSignals.State = [pos_error;vel_error;acc_error;R(:);state(10:12)];
-LoggedSignals.State = [pos_error;vel_error;acc_error;quat';state(10:12)];
+alpha = 0.8;
+current_state = [pos_error;vel_error;acc_error;quat';state(10:12)];
+EMA = alpha*current_state + (1-alpha)*EMA;
+% LoggedSignals.State = [pos_error;vel_error;acc_error;quat';state(10:12)];
+LoggedSignals.State = EMA;
 % Transform state to observation.
 NextObs = LoggedSignals.State;
 
@@ -81,7 +80,7 @@ yaw_error = abs(state(9));
 % std_action = std(Action);
 % action_l2 = norm(Action);
 % Incentive on flipping (z_axis pointing downward)
-z_axis = R(:,3);
+% z_axis = R(:,3);
 
 % Rewards
 
@@ -96,16 +95,16 @@ r_yaw = exp(-(1/(5*pi/180) * yaw_error).^2);
 % r_yaw = betaReward(yaw_error, 5*pi/180);
 
 % Cosine similarity between z_axis and acceleration direction
-if desired_state.acc == zeros(3,1)
-    z_cos = acc_l2;
-    r_z_axis = exp(-(1/1 * acc_l2).^2);
+% if desired_state.acc == zeros(3,1)
+%     z_cos = acc_l2;
+%     r_z_axis = exp(-(1/1 * acc_l2).^2);
 %     r_z_axis = betaReward(z_cos, 1);
-else
+% else
 %     z_cos = 1-getCosineSimilarity(z_axis,desired_state.acc);
-    z_cos = acos(getCosineSimilarity(z_axis,desired_state.acc));
+%     z_cos = acos(getCosineSimilarity(z_axis,desired_state.acc));
 %     r_z_axis = betaReward(z_cos, 45/180*pi);
-    r_z_axis = exp(-(1/(45/180*pi) * z_cos).^2);
-end
+%     r_z_axis = exp(-(1/(45/180*pi) * z_cos).^2);
+% end
 
 rewards = [0.6 0.1 0.1 0.2] .* [r_pos r_vel r_acc r_yaw];
 % rewards = [0.5 0.1 0.1 0.1 0.2] .* [r_pos r_vel r_acc r_yaw r_z_axis];
@@ -117,7 +116,8 @@ rewards = [0.6 0.1 0.1 0.2] .* [r_pos r_vel r_acc r_yaw];
 reward_terminate = 0;
 
 % Check termination condition
-IsDone = total_time <= Time;
+% IsDone = total_time <= Time;
+IsDone = Step == 1000;
 
 if pos_l2 > 1
     IsDone = true;
