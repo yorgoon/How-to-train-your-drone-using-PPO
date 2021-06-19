@@ -14,4 +14,4 @@ To test the agent, run ``test`` section under ``PPO.m``. You can create your own
 To try a trained model, you can load ``0615_FM.mat`` in results folder.
 
 ## Some results
-![PPO agent trained with random disturbances](https://img.youtu.be/vi/j0C2QGruKn4/0.jpg / https://youtu.be/j0C2QGruKn4)
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/j0C2QGruKn4/0.jpg)](https://www.youtube.com/watch?v=j0C2QGruKn4)
