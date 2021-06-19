@@ -1,11 +1,10 @@
-% Random selector
-[Tau_vec, PATH] = loopTheLoop();
+[Tau_vec, PATH] = canopyRoll();
 
 % Trajectory
 traj = MinimumSnapTrajectory(Tau_vec, PATH);
 P = traj.P;
 t = sum(Tau_vec);
-dt = 0.1;
+dt = 0.05;
 ts = 0:dt:t;
 ts_pos = 0:0.001:t;
 pos_plot = [];
@@ -51,3 +50,9 @@ for i=1:size(PATH, 1)
     plot3(PATH(i,1),PATH(i,2),PATH(i,3), '*g', 'MarkerSize',20.0)
 end
 hold off
+%%
+vel_acc_rad = zeros(1,length(vel));
+for i=10:length(vel)
+    vel_acc_rad(i) = acos(getCosineSimilarity(vel(i,:),acc(i,:)));
+end
+plot(vel_acc_rad/pi*180)

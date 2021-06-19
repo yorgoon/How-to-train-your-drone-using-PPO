@@ -14,6 +14,17 @@ S.m2 = 0.05; % Mass of Second Link
 S.l1 = 0.5; % Length of First Link
 S.l2 = 0.5; % Length of Second Link
 thrust = (S.mb)*S.g/4;
+thrust_max = 10;
+
+% inverse of tanh
+% a = (thrust - thrust_max/2)/(thrust_max/2);
+% offset = 1/2*log((1+a)/(1-a));
+% scale = 1/8;
+
+% For sigmoid
+scale = 1/2.5;
+offset = 1/scale*log((thrust/thrust_max)/(1-thrust/thrust_max));
+
 switch activation
     case 'single'
         statePath = [
@@ -35,8 +46,9 @@ switch activation
             fullyConnectedLayer(192,'Name','MeanFC3')
             reluLayer('Name','MeanRelu3')
             fullyConnectedLayer(numAct,'Name','Mean')
-            tanhLayer('Name','MeanTanh')
-            scalingLayer('Name','MeanScaling','Scale',15/2,'Bias',15/2)
+            scalingLayer('Name','MeanScaling2','Scale',scale,'Bias',scale*offset)
+            sigmoidLayer('Name','MeanTanh')
+            scalingLayer('Name','MeanScaling','Scale',thrust_max)
             ];
         stdPath = [
             fullyConnectedLayer(192,'Name','StdFC1')
@@ -46,8 +58,8 @@ switch activation
             fullyConnectedLayer(192,'Name','StdFC3')
             reluLayer('Name','StdRelu3')
             fullyConnectedLayer(numAct,'Name','StdFC4')
-            sigmoidLayer('Name','StdSig')
-            scalingLayer('Name','ActorScaling','Scale',thrust*0.1)
+            sigmoidLayer('Name','StdSigmoid')
+            scalingLayer('Name','StdScaling','Scale',thrust*0.1)
             ];
         concatPath = concatenationLayer(1,2,'Name','GaussianParameters');
 
@@ -58,7 +70,7 @@ switch activation
         actorNetwork = connectLayers(actorNetwork,'CommonRelu2','MeanFC1/in');
         actorNetwork = connectLayers(actorNetwork,'CommonRelu2','StdFC1/in');
         actorNetwork = connectLayers(actorNetwork,'MeanScaling','GaussianParameters/in1');
-        actorNetwork = connectLayers(actorNetwork,'ActorScaling','GaussianParameters/in2');
+        actorNetwork = connectLayers(actorNetwork,'StdScaling','GaussianParameters/in2');
 
     case 'dual'
         statePath = [
@@ -84,12 +96,12 @@ switch activation
         meanTanh1Path = [
             scalingLayer('Name','meanScaling1','Bias',1.5)
             tanhLayer('Name','meantanh1')
-            scalingLayer('Name','meantanh1scaling','Scale',(thrust/2),'Bias', (thrust/2))
+            scalingLayer('Name','meantanh1scaling','Scale',(thrust/2),'Bias',(thrust/2))
             ];
         meanTanh2Path = [
             scalingLayer('Name','meanScaling2','Bias',-1.5)
             tanhLayer('Name','meantanh2')
-            scalingLayer('Name','meantanh2scaling','Scale',15/2-(thrust/2),'Bias', 15/2-(thrust/2))
+            scalingLayer('Name','meantanh2scaling','Scale',(thrust_max-thrust)/2,'Bias',(thrust_max-thrust)/2)
             ];
         add = additionLayer(2,'Name','add_1');
         stdPath = [
@@ -100,8 +112,8 @@ switch activation
             fullyConnectedLayer(192,'Name','StdFC3')
             reluLayer('Name','StdRelu3')
             fullyConnectedLayer(numAct,'Name','StdFC4')
-            sigmoidLayer('Name','StdSig')
-            scalingLayer('Name','ActorScaling','Scale',thrust*0.1)
+            sigmoidLayer('Name','StdSigmoid')
+            scalingLayer('Name','StdScaling','Scale',1)
             ];
 
         concatPath = concatenationLayer(1,2,'Name','GaussianParameters');
@@ -120,7 +132,7 @@ switch activation
         actorNetwork = connectLayers(actorNetwork,'meantanh2scaling','add_1/in2');
         actorNetwork = connectLayers(actorNetwork,'CommonRelu2','StdFC1/in');
         actorNetwork = connectLayers(actorNetwork,'add_1','GaussianParameters/in1');
-        actorNetwork = connectLayers(actorNetwork,'ActorScaling','GaussianParameters/in2');
+        actorNetwork = connectLayers(actorNetwork,'StdScaling','GaussianParameters/in2');
 end
 actorOpts = rlRepresentationOptions('Optimizer','adam','LearnRate',2e-4,...
                                  'GradientThreshold',1);

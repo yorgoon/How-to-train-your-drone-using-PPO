@@ -5,12 +5,12 @@ K.Kp = 11.9;
 K.Kv = 4.443;
 K.KR = .1;
 K.K_omega = 1;
-
+trajectoryProfile
 % Gain
-KK.Kp = 2500;%11.9;
-KK.Kv = 750;%4.443;
-KK.KR = 15000;%10;
-KK.K_omega = 7300;%6;
+% KK.Kp = 2500;%11.9;
+% KK.Kv = 750;%4.443;
+% KK.KR = 15000;%10;
+% KK.K_omega = 7300;%6;
 
 % Define the environment constants.
 g = S.g;

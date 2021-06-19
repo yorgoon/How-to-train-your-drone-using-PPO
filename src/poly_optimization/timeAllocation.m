@@ -21,7 +21,7 @@ while 1
             disp('tau vector cannot have negative values.')
             break
         end
-        traj_test = MinimumSnapTrajectory(tau_vec_test, PATH);
+        traj_test = MinimumSnapTrajectory(tau_vec_test', PATH);
         J_test = [J_test timeAllocationCost(traj_test, gamma)];
         
         % If the latest cost is larger then previous one, escape the loop

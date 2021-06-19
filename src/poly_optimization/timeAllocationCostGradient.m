@@ -6,7 +6,7 @@ for n = 1:2
     for i = 1:length(tau_vec)
         tau_vec_perturb = tau_vec;
         tau_vec_perturb(i) = tau_vec_perturb(i) + epsilon_t(n);
-        traj_perturb = MinimumSnapTrajectory(tau_vec_perturb, PATH);
+        traj_perturb = MinimumSnapTrajectory(tau_vec_perturb', PATH);
         J_pur(i,n) = timeAllocationCost(traj_perturb, gamma);
     end
 end
