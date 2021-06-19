@@ -4,7 +4,8 @@
  This repository contains MATLAB-based simulation for quadrotor using PPO agent.
  
  **Main Contributors**: Soowon Kim (soowon_kim@korea.ac.kr)
- **Affiliation**: Korea University
+
+**Affiliation**: Korea University
 
 ## How To
 To train the agent, please run the main script sequentially in ``PPO.m``. In the declaration of ``actor``, you can choose either ``single`` or ``dual`` tanh activation for the mean output of the actions.
