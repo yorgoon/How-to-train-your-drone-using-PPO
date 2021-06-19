@@ -14,5 +14,5 @@ To test the agent, run ``test`` section under ``PPO.m``. You can create your own
 To try a trained model, you can load ``0615_FM.mat`` in results folder.
 
 ## Some results
-[![IMAGE ALT TEXT HERE](https://img.youtu.be/vi/j0C2QGruKn4/0.jpg)](https://youtu.be/j0C2QGruKn4)
+![IMAGE ALT TEXT HERE](https://img.youtu.be/vi/j0C2QGruKn4/0.jpg)](https://youtu.be/j0C2QGruKn4)
 <!-- [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/m1lIAcgYFYQ/0.jpg)](https://www.youtube.com/watch?v=m1lIAcgYFYQ) -->
