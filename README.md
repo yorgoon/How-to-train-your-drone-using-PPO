@@ -12,3 +12,6 @@ To train the agent, please run the main script sequentially in ``PPO.m``. In the
 To test the agent, run ``test`` section under ``PPO.m``. You can create your own trajectory by modifying ``myReset.m`` function by declaring your own ``path`` and ``tau_vec``. For more information on how to create the trajectory, please visit my other repository, https://github.com/yorgoon/minimum-snap-geometric-control/.
 
 To try a trained model, you can load ``0615_FM.mat`` in results folder.
+
+## Some results
+[![IMAGE ALT TEXT HERE](https://img.youtu.be/j0C2QGruKn4/0.jpg)](https://youtu.be/j0C2QGruKn4)
