@@ -14,7 +14,11 @@ To test the agent, run ``test`` section under ``PPO.m``. You can create your own
 To try a trained model, you can load ``0615_FM.mat`` in results folder.
 
 ## Some results
+PPO agent trained with random disturbances
 [![PPO agent trained with random disturbances](https://img.youtube.com/vi/j0C2QGruKn4/0.jpg)](https://www.youtube.com/watch?v=j0C2QGruKn4)
+PPO agent trained to perform Inside loop
 [![PPO agent trained to perform Inside loop](https://img.youtube.com/vi/7qMmjWN5tKg/0.jpg)](https://www.youtube.com/watch?v=7qMmjWN5tKg)
+PPO agent trained to perform Split S
 [![PPO agent trained to perform Split S](https://img.youtube.com/vi/Bap1MF9zrjI/0.jpg)](https://www.youtube.com/watch?v=Bap1MF9zrjI)
+PPO agent trained to perform Canopy roll
 [![PPO agent trained to perform Canopy roll](https://img.youtube.com/vi/4YRYZYiwABw/0.jpg)](https://www.youtube.com/watch?v=4YRYZYiwABw)
