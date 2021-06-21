@@ -10,7 +10,7 @@
 ## How To
 
 #### State, action and reward
-Observation (state) consists of the errors between the reference trajectory and current position, velocity, and acclereation. Addition to that, the state has orientation and angular velocity of the agent. Then the state can be expressed as follows:
+Observation (state) consists of the errors between the reference trajectory and current position, velocity, and acclereation. Addition to that, the state has orientation (quaternion) and angular velocity of the agent. Then the state can be expressed as follows:
 
 <img src="https://render.githubusercontent.com/render/math?math=s=[ e_{pos}, e_{vel}, e_{acc},q,\omega]\in \mathbb{R}^{16}">
 
@@ -27,8 +27,7 @@ actInfo = rlNumericSpec([numAct 1]);
 actInfo.Name = 'Quad Action';
 actInfo.LowerLimit = [0,0,0,0]';
 ````
-
-To train the agent, please run the main script sequentially in ``PPO.m``. In the declaration of ``actor``, you can choose either ``single`` or ``dual`` tanh activation for the mean output of the actions.
+In the declaration of ``actor``, you can choose either ``single`` or ``dual`` tanh activation for the mean output of the actions.
 
 ````
 % Define environment
@@ -37,6 +36,16 @@ env = rlFunctionEnv(obsInfo,actInfo,'myStep','myReset');
 actor = actorNetwork(obsInfo, actInfo,'single');
 % Critic network
 critic = criticNetwork(obsInfo);
+````
+Now you can create PPO agent. You can experiment with different parameters but these setup worked for me.
+````
+agentOpts = rlPPOAgentOptions('SampleTime',0.01,...
+    'ExperienceHorizon',2^11,...
+    'MiniBatchSize',2^11,...
+    'UseDeterministicExploitation',false,...
+    'EntropyLossWeight',0.4);
+
+agent = rlPPOAgent(actor,critic,agentOpts);
 ````
 
 To test the agent, run ``Test`` section under ``PPO.m``. You can create your own trajectory by modifying ``myReset.m`` function by declaring your own ``path`` and ``tau_vec``. 
