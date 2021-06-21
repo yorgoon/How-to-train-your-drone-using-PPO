@@ -133,16 +133,15 @@ PPO agent trained with random disturbances
 PPO agent trained to perform Inside loop
 
 <!-- [![PPO agent trained to perform Inside loop](https://img.youtube.com/vi/7qMmjWN5tKg/0.jpg)](https://www.youtube.com/watch?v=7qMmjWN5tKg) -->
-![alt text](https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/loop.gif)
-
+<img src="https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/loop.gif" height="250"/>
 
 PPO agent trained to perform Split S
 
 <!-- [![PPO agent trained to perform Split S](https://img.youtube.com/vi/Bap1MF9zrjI/0.jpg)](https://www.youtube.com/watch?v=Bap1MF9zrjI) -->
-![alt text](https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/splitS.gif)
+<img src="https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/splitS.gif" height="250"/>
 
 PPO agent trained to perform Canopy roll
 
 <!-- [![PPO agent trained to perform Canopy roll](https://img.youtube.com/vi/4YRYZYiwABw/0.jpg)](https://www.youtube.com/watch?v=4YRYZYiwABw) -->
-![alt text](https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/canopyRoll.gif)
+<img src="https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/canopyRoll.gif" height="250"/>
 
