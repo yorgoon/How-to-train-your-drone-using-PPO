@@ -8,7 +8,7 @@
 **Affiliation**: Korea University
 
 ## How To
-# Trajectory
+### Trajectory
 To train the agent, please run the main script sequentially in ``PPO.m``. In the declaration of ``actor``, you can choose either ``single`` or ``dual`` tanh activation for the mean output of the actions.
 
 To test the agent, run ``Test`` section under ``PPO.m``. You can create your own trajectory by modifying ``myReset.m`` function by declaring your own ``path`` and ``tau_vec``. 
