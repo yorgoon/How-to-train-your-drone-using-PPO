@@ -11,8 +11,8 @@
 
 #### State, action and reward
 Observation (state) consists of the errors between the reference trajectory and current position, velocity, and acclereation. Addition to that, the state has orientation and angular velocity of the agent.
-<img src="https://latex.codecogs.com/gif.latex?\textbf{s}=\left [ e_{pos}, e_{vel}, e_{acc},q,\omega \right ]  " /> 
-<img src="https://render.githubusercontent.com/render/math?math=e^{i \pi} = -1">
+
+<img src="https://render.githubusercontent.com/render/math?math=\textbf{s}=\left [ e_{pos}, e_{vel}, e_{acc},q,\omega \right ]">
 ````
 numObs = 16;
 obsInfo = rlNumericSpec([numObs 1]);
