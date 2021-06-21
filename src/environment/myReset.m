@@ -11,7 +11,7 @@ Action_hist = [];
 Fext_hist = zeros(3,1);
 Zb = false;
 % Random force with random direction;
-Fext = 0 * rand * random_unit_vector;
+Fext = 1 * rand * random_unit_vector;
 
 % Random torque with random direction on x-y plane;
 rand_unit_vec = random_unit_vector;

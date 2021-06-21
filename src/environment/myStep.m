@@ -26,11 +26,11 @@ total_step = total_time/ts;
 Time = Time + ts; Step = Step + 1;
 
 % External force
-if Time > 1 && Time <= pi/2+1
-    Fext = sin(Time-1) * [0,0,-1]';
-elseif Time > pi/2+1
-    Fext = [0,0,-1]';
-end
+% if Time > 1 && Time <= pi/2+1
+%     Fext = sin(Time-1) * [0,0,-1]';
+% elseif Time > pi/2+1
+%     Fext = [0,0,-1]';
+% end
 
 % Current state
 state = State(:,end);
@@ -89,10 +89,10 @@ yaw_error = abs(state(9));
 % zb = R(:,3);
 
 % Rewards
-r_pos = exp(-(1/0.5*pos_l2).^2);
-r_vel = exp(-(1/1*vel_l2).^2);
-r_acc = exp(-(1/1*acc_l2).^2);
-r_yaw = exp(-(1/(5/180*pi)*yaw_error).^2);
+r_pos = exp(-(1/0.5*pos_l2));
+r_vel = exp(-(1/1*vel_l2));
+r_acc = exp(-(1/1*acc_l2));
+r_yaw = exp(-(1/(5/180*pi)*yaw_error));
 
 % % desired vel and acc angle
 % vel_acc_rad = acos(getCosineSimilarity(desired_state.vel,desired_state.acc));
@@ -121,10 +121,10 @@ rewards = [0.6 0.1 0.1 0.2] .* [r_pos r_vel r_acc r_yaw];
 IsDone = false;
 reward_terminate = 0;
 
-% if pos_l2 > 0.5*3 || yaw_error > 5*3/180*pi
-%     IsDone = true;
-%     reward_terminate = -1;
-% end
+if pos_l2 > 0.5*3 || yaw_error > 5*3/180*pi
+    IsDone = true;
+    reward_terminate = -1;
+end
 
 % if Time > Traj.tau_vec(1)
 %     if vel_acc_rad < 90/180*pi && abs(x_cos) > pi/4
@@ -153,18 +153,18 @@ reward_terminate = 0;
 % IsDone = false; % For test
 
 if Time >= total_time+1 && ~IsDone
-    IsDone = true;
-%     State = State(:,end);
-%     State(1:3) = pos_error;
-%     Time = 0;
-%     tau_vec = 9;
-%     vel_min = 1; vel_max = 5;
-%     vel = (vel_max-vel_min)*rand + vel_min;
-%     dist = vel*tau_vec;
-%     target = dist * random_unit_vector;
-%     path = [zeros(1,3); target'];
-%     Traj = MinimumSnapTrajectory(tau_vec, path);
-%     Fext = 1 * rand * random_unit_vector;
+%     IsDone = true;
+    State = State(:,end);
+    State(1:3) = pos_error;
+    Time = 0;
+    tau_vec = 9;
+    vel_min = 1; vel_max = 5;
+    vel = (vel_max-vel_min)*rand + vel_min;
+    dist = vel*tau_vec;
+    target = dist * random_unit_vector;
+    path = [zeros(1,3); target'];
+    Traj = MinimumSnapTrajectory(tau_vec, path);
+    Fext = 1 * rand * random_unit_vector;
 end
 
 if Step == 1e+6
