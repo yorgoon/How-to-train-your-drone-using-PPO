@@ -107,6 +107,21 @@ The greater the γ is, the higher the time penalty, resulting a faster trajector
 
 To try a trained model, you can load ``0615_FM.mat`` in results folder.
 
+### Aerobatic maneuvers
+To train an agent to perform aerobatic maneuvers, declare a trajectory using ``loopTheLoop``, ``splitS``, or ``canopyRoll`` in ``myStep.m``. For example,
+````
+[tau_vec, path] = splitS();
+````
+And modify reward functions so as the body x-axis to follow the direction of the velocity and the body z-axis to follow the direction of the acceleration of the reference trajectory. For example, 
+````
+x_cos = acos(getCosineSimilarity(xb,desired_state.vel));
+z_cos = acos(getCosineSimilarity(zb,desired_state.acc));
+r_xb = exp(-(1/(30/180*pi)*x_cos).^2);
+r_zb = exp(-(1/(30/180*pi)*z_cos).^2);
+rewards = [0.6 0.1 0.1 0.1 0.1] .* [r_pos r_vel r_acc r_xb r_zb];
+````
+Each aerobatic maneuver has its own speicificity of the shape of the reward function.
+
 ## Some results
 PPO agent trained with random disturbances
 
