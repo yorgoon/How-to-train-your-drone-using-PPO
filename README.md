@@ -48,6 +48,15 @@ agentOpts = rlPPOAgentOptions('SampleTime',0.01,...
 agent = rlPPOAgent(actor,critic,agentOpts);
 ````
 
+Reward functions are inspired by [Peng's work](https://xbpeng.github.io/). You can modify them in ``myStep.m``.
+````
+% Rewards
+r_pos = exp(-(1/0.5*pos_l2).^2);
+r_vel = exp(-(1/1*vel_l2).^2);
+r_acc = exp(-(1/1*acc_l2).^2);
+r_yaw = exp(-(1/(5/180*pi)*yaw_error).^2);
+````
+
 To test the agent, run ``Test`` section under ``PPO.m``. You can create your own trajectory by modifying ``myReset.m`` function by declaring your own ``path`` and ``tau_vec``. 
 ### Trajectory
 ``path`` consists of ``x,y,z`` coordinates of way points. It always starts and ends with zero velocity, acceleration, jerk, and snap. Then you have to declare time interval between way points. For example, you can set ``path=[0,0,0;1,1,1];``. Since it only has start and end points, time interval can be set ``tau_vec=10;``. It would look something like this.
