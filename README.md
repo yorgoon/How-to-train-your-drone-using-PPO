@@ -16,7 +16,7 @@ To test the agent, run ``Test`` section under ``PPO.m``. You can create your own
 
 ![alt text](https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/traj_example.jpg?raw=true)
 
-You can also use time allocation technique to automatically set time intervals ``tau_vec`` using ``timeAllocation``. For example,
+You can also use time allocation technique to automatically set time intervals ``tau_vec`` using ``timeAllocation`` with ``$\gamma$`` parameter. For example,
 ````
 path = [0,0,0;1,1,0;2,0,0;1,-1,0;0,0,0;-1,1,0;-2,0,0;-1,-1,0;0,0,0];
 tau_vec = timeAllocation(path, 100)';
