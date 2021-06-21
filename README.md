@@ -8,7 +8,7 @@
 **Affiliation**: Korea University
 
 ## Requirements
-Tested on MATLAB 2021a. RL package is required.
+Tested on MATLAB 2021a. [RL package](https://www.mathworks.com/products/reinforcement-learning.html) is required.
 
 ## How To
 ### State, action and reward
