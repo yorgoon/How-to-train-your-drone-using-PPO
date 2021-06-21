@@ -7,9 +7,11 @@
 
 **Affiliation**: Korea University
 
-## How To
+## Requirements
+Tested on MATLAB 2021a. [RL package](https://www.mathworks.com/products/reinforcement-learning.html) is required.
 
-#### State, action and reward
+## How To
+### State, action and reward
 Observation (state) consists of the errors between the reference trajectory and current position, velocity, and acclereation. Addition to that, the state has orientation (quaternion) and angular velocity of the agent. Then the state can be expressed as follows:
 
 <img src="https://render.githubusercontent.com/render/math?math=s=[ e_{pos}, e_{vel}, e_{acc},q,\omega]\in \mathbb{R}^{16}">
@@ -27,8 +29,17 @@ actInfo = rlNumericSpec([numAct 1]);
 actInfo.Name = 'Quad Action';
 actInfo.LowerLimit = [0,0,0,0]';
 ````
-In the declaration of ``actor``, you can choose either ``single`` or ``dual`` tanh activation for the mean output of the actions.
 
+Reward functions are inspired by [Peng's work](https://xbpeng.github.io/). You can modify them in ``myStep.m``.
+````
+% Rewards
+r_pos = exp(-(1/0.5*pos_l2).^2);
+r_vel = exp(-(1/1*vel_l2).^2);
+r_acc = exp(-(1/1*acc_l2).^2);
+r_yaw = exp(-(1/(5/180*pi)*yaw_error).^2);
+````
+### Agent
+In the declaration of ``actor``, you can choose either ``single`` or ``dual`` tanh activation for the mean output of the actions.
 ````
 % Define environment
 env = rlFunctionEnv(obsInfo,actInfo,'myStep','myReset');
@@ -47,17 +58,41 @@ agentOpts = rlPPOAgentOptions('SampleTime',0.01,...
 
 agent = rlPPOAgent(actor,critic,agentOpts);
 ````
-
-Reward functions are inspired by [Peng's work](https://xbpeng.github.io/). You can modify them in ``myStep.m``.
+### Train
+To train the agent, simply use ``train``.
 ````
-% Rewards
-r_pos = exp(-(1/0.5*pos_l2).^2);
-r_vel = exp(-(1/1*vel_l2).^2);
-r_acc = exp(-(1/1*acc_l2).^2);
-r_yaw = exp(-(1/(5/180*pi)*yaw_error).^2);
+trainOpts = rlTrainingOptions(...
+    'MaxEpisodes',1000000, ...
+    'MaxStepsPerEpisode',1000000, ...
+    'Verbose',false, ...
+    'Plots','training-progress',...
+    'ScoreAveragingWindowLength',100,...
+    'StopTrainingCriteria',"AverageReward",...
+    'UseParallel',true,...
+    'StopTrainingValue',10000000);
+trainingStats = train(agent,env,trainOpts);
 ````
 
-To test the agent, run ``Test`` section under ``PPO.m``. You can create your own trajectory by modifying ``myReset.m`` function by declaring your own ``path`` and ``tau_vec``. 
+### Test
+To test the agent, run ``Test`` section under ``PPO.m``. You can create your own trajectory by modifying ``myReset.m`` function by declaring your own ``path`` and ``tau_vec``. You may want to modify some of the termination conditions that are used for training. For example, in ``myStep.m``,
+````
+if Time >= total_time+1 && ~IsDone
+%     IsDone = true;
+    State = State(:,end);
+    State(1:3) = pos_error;
+    Time = 0;
+    tau_vec = 9;
+    vel_min = 1; vel_max = 5;
+    vel = (vel_max-vel_min)*rand + vel_min;
+    dist = vel*tau_vec;
+    target = dist * random_unit_vector;
+    path = [zeros(1,3); target'];
+    Traj = MinimumSnapTrajectory(tau_vec, path);
+    Fext = 1 * rand * random_unit_vector;
+end
+````
+comment out all statements and use ``IsDone = true``.
+
 ### Trajectory
 ``path`` consists of ``x,y,z`` coordinates of way points. It always starts and ends with zero velocity, acceleration, jerk, and snap. Then you have to declare time interval between way points. For example, you can set ``path=[0,0,0;1,1,1];``. Since it only has start and end points, time interval can be set ``tau_vec=10;``. It would look something like this.
 
@@ -73,6 +108,21 @@ tau_vec = timeAllocation(path, 100)';
 The greater the γ is, the higher the time penalty, resulting a faster trajectory.
 
 To try a trained model, you can load ``0615_FM.mat`` in results folder.
+
+### Aerobatic maneuvers
+To train an agent to perform aerobatic maneuvers, declare a trajectory using ``loopTheLoop``, ``splitS``, or ``canopyRoll`` in ``myStep.m``. For example,
+````
+[tau_vec, path] = splitS();
+````
+And modify reward functions so as the body x-axis to follow the direction of the velocity and the body z-axis to follow the direction of the acceleration of the reference trajectory. For example, 
+````
+x_cos = acos(getCosineSimilarity(xb,desired_state.vel));
+z_cos = acos(getCosineSimilarity(zb,desired_state.acc));
+r_xb = exp(-(1/(30/180*pi)*x_cos).^2);
+r_zb = exp(-(1/(30/180*pi)*z_cos).^2);
+rewards = [0.6 0.1 0.1 0.1 0.1] .* [r_pos r_vel r_acc r_xb r_zb];
+````
+Each aerobatic maneuver has its own speicificity of the shape of the reward function.
 
 ## Some results
 PPO agent trained with random disturbances
