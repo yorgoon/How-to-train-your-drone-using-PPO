@@ -125,7 +125,7 @@ rewards = [0.6 0.1 0.1 0.1 0.1] .* [r_pos r_vel r_acc r_xb r_zb];
 Each aerobatic maneuver has its own speicificity of the shape of the reward function.
 
 ## Some results
-PPO agent trained with random disturbances
+PPO agent trained with random disturbances. Below is demonstrating the agent with sinusoidal vertical force applied.
 
 <!-- [![PPO agent trained with random disturbances](https://img.youtube.com/vi/j0C2QGruKn4/0.jpg)](https://www.youtube.com/watch?v=j0C2QGruKn4) -->
 <img src="https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/FM.gif" height="250"/>
