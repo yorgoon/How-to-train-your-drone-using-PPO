@@ -7,8 +7,10 @@
 
 **Affiliation**: Korea University
 
-## How To
+## Requirements
+Tested on MATLAB 2021a. RL package is required.
 
+## How To
 ### State, action and reward
 Observation (state) consists of the errors between the reference trajectory and current position, velocity, and acclereation. Addition to that, the state has orientation (quaternion) and angular velocity of the agent. Then the state can be expressed as follows:
 
