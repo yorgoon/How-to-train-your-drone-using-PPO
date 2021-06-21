@@ -23,6 +23,7 @@ tau_vec = timeAllocation(path, 100)';
 ````
 ![alt text](https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/traj_example2.jpg?raw=true)
 
+The greater the γ is, the higher on the time penalty, resulting a faster trajectory.
 
 To try a trained model, you can load ``0615_FM.mat`` in results folder.
 
