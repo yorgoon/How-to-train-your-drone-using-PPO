@@ -27,8 +27,17 @@ actInfo = rlNumericSpec([numAct 1]);
 actInfo.Name = 'Quad Action';
 actInfo.LowerLimit = [0,0,0,0]';
 ````
-In the declaration of ``actor``, you can choose either ``single`` or ``dual`` tanh activation for the mean output of the actions.
 
+Reward functions are inspired by [Peng's work](https://xbpeng.github.io/). You can modify them in ``myStep.m``.
+````
+% Rewards
+r_pos = exp(-(1/0.5*pos_l2).^2);
+r_vel = exp(-(1/1*vel_l2).^2);
+r_acc = exp(-(1/1*acc_l2).^2);
+r_yaw = exp(-(1/(5/180*pi)*yaw_error).^2);
+````
+### Agent
+In the declaration of ``actor``, you can choose either ``single`` or ``dual`` tanh activation for the mean output of the actions.
 ````
 % Define environment
 env = rlFunctionEnv(obsInfo,actInfo,'myStep','myReset');
@@ -46,15 +55,6 @@ agentOpts = rlPPOAgentOptions('SampleTime',0.01,...
     'EntropyLossWeight',0.4);
 
 agent = rlPPOAgent(actor,critic,agentOpts);
-````
-
-Reward functions are inspired by [Peng's work](https://xbpeng.github.io/). You can modify them in ``myStep.m``.
-````
-% Rewards
-r_pos = exp(-(1/0.5*pos_l2).^2);
-r_vel = exp(-(1/1*vel_l2).^2);
-r_acc = exp(-(1/1*acc_l2).^2);
-r_yaw = exp(-(1/(5/180*pi)*yaw_error).^2);
 ````
 ### Train
 To train the agent, simply use ``train``.
