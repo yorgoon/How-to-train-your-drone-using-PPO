@@ -14,12 +14,14 @@ Observation (state) consists of the errors between the reference trajectory and 
 
 <img src="https://render.githubusercontent.com/render/math?math=s=[ e_{pos}, e_{vel}, e_{acc},q,\omega]\in \mathbb{R}^{16}">
 
-
-
 ````
 numObs = 16;
 obsInfo = rlNumericSpec([numObs 1]);
 obsInfo.Name = 'Quad States';
+````
+
+Action consists of four thrusts by each rotor in Newton.
+````
 numAct = 4;
 actInfo = rlNumericSpec([numAct 1]);
 actInfo.Name = 'Quad Action';
