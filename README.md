@@ -57,7 +57,25 @@ r_acc = exp(-(1/1*acc_l2).^2);
 r_yaw = exp(-(1/(5/180*pi)*yaw_error).^2);
 ````
 
-To test the agent, run ``Test`` section under ``PPO.m``. You can create your own trajectory by modifying ``myReset.m`` function by declaring your own ``path`` and ``tau_vec``. 
+To test the agent, run ``Test`` section under ``PPO.m``. You can create your own trajectory by modifying ``myReset.m`` function by declaring your own ``path`` and ``tau_vec``. You may want to modify some of the termination conditions that are used for training. For example, in ``myStep.m``,
+````
+if Time >= total_time+1 && ~IsDone
+%     IsDone = true;
+    State = State(:,end);
+    State(1:3) = pos_error;
+    Time = 0;
+    tau_vec = 9;
+    vel_min = 1; vel_max = 5;
+    vel = (vel_max-vel_min)*rand + vel_min;
+    dist = vel*tau_vec;
+    target = dist * random_unit_vector;
+    path = [zeros(1,3); target'];
+    Traj = MinimumSnapTrajectory(tau_vec, path);
+    Fext = 1 * rand * random_unit_vector;
+end
+````
+comment out all statements and use ``IsDone = true``.
+
 ### Trajectory
 ``path`` consists of ``x,y,z`` coordinates of way points. It always starts and ends with zero velocity, acceleration, jerk, and snap. Then you have to declare time interval between way points. For example, you can set ``path=[0,0,0;1,1,1];``. Since it only has start and end points, time interval can be set ``tau_vec=10;``. It would look something like this.
 
