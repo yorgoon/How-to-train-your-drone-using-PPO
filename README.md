@@ -127,7 +127,8 @@ Each aerobatic maneuver has its own speicificity of the shape of the reward func
 ## Some results
 PPO agent trained with random disturbances
 
-[![PPO agent trained with random disturbances](https://img.youtube.com/vi/j0C2QGruKn4/0.jpg)](https://www.youtube.com/watch?v=j0C2QGruKn4)
+<!-- [![PPO agent trained with random disturbances](https://img.youtube.com/vi/j0C2QGruKn4/0.jpg)](https://www.youtube.com/watch?v=j0C2QGruKn4) -->
+![alt text](https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/FM.gif)
 
 PPO agent trained to perform Inside loop
 
