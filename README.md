@@ -21,9 +21,8 @@ You can also use time allocation technique to automatically set time intervals `
 path = [0,0,0;1,1,0;2,0,0;1,-1,0;0,0,0;-1,1,0;-2,0,0;-1,-1,0;0,0,0];
 tau_vec = timeAllocation(path, 100)';
 ````
+![alt text](https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/traj_example2.jpg?raw=true)
 
-
-For more information on how to create the trajectory, please visit my other repository, https://github.com/yorgoon/minimum-snap-geometric-control/.
 
 To try a trained model, you can load ``0615_FM.mat`` in results folder.
 
