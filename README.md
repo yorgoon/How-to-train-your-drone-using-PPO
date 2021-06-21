@@ -9,7 +9,7 @@
 
 ## How To
 
-#### State, action and reward
+### State, action and reward
 Observation (state) consists of the errors between the reference trajectory and current position, velocity, and acclereation. Addition to that, the state has orientation (quaternion) and angular velocity of the agent. Then the state can be expressed as follows:
 
 <img src="https://render.githubusercontent.com/render/math?math=s=[ e_{pos}, e_{vel}, e_{acc},q,\omega]\in \mathbb{R}^{16}">
@@ -56,7 +56,22 @@ r_vel = exp(-(1/1*vel_l2).^2);
 r_acc = exp(-(1/1*acc_l2).^2);
 r_yaw = exp(-(1/(5/180*pi)*yaw_error).^2);
 ````
+### Train
+To train the agent, simply use ``train``.
+````
+trainOpts = rlTrainingOptions(...
+    'MaxEpisodes',1000000, ...
+    'MaxStepsPerEpisode',1000000, ...
+    'Verbose',false, ...
+    'Plots','training-progress',...
+    'ScoreAveragingWindowLength',100,...
+    'StopTrainingCriteria',"AverageReward",...
+    'UseParallel',true,...
+    'StopTrainingValue',10000000);
+trainingStats = train(agent,env,trainOpts);
+````
 
+### Test
 To test the agent, run ``Test`` section under ``PPO.m``. You can create your own trajectory by modifying ``myReset.m`` function by declaring your own ``path`` and ``tau_vec``. You may want to modify some of the termination conditions that are used for training. For example, in ``myStep.m``,
 ````
 if Time >= total_time+1 && ~IsDone
