@@ -12,6 +12,7 @@
 #### State, action and reward
 Observation (state) consists of the errors between the reference trajectory and current position, velocity, and acclereation. Addition to that, the state has orientation and angular velocity of the agent.
 <img src="https://latex.codecogs.com/gif.latex?\textbf{s}=\left [ e_{pos}, e_{vel}, e_{acc},q,\omega \right ]  " /> 
+````
 numObs = 16;
 obsInfo = rlNumericSpec([numObs 1]);
 obsInfo.Name = 'Quad States';
@@ -19,7 +20,7 @@ numAct = 4;
 actInfo = rlNumericSpec([numAct 1]);
 actInfo.Name = 'Quad Action';
 actInfo.LowerLimit = [0,0,0,0]';
-
+````
 To train the agent, please run the main script sequentially in ``PPO.m``. In the declaration of ``actor``, you can choose either ``single`` or ``dual`` tanh activation for the mean output of the actions.
 ````
 % Define environment
