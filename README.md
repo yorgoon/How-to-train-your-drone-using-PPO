@@ -14,7 +14,7 @@ To test the agent, run ``Test`` section under ``PPO.m``. You can create your own
 
 ``path`` consists of ``x,y,z`` coordinates of way points. It always starts and ends with zero velocity, acceleration, jerk, and snap. Then you have to declare time interval between way points. For example, you can set ``path=[0,0,0;1,1,1];``. Since it only has start and end points, time interval can be set ``tau_vec=10;``.
 
-![alt text](https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/traj_example.pdf?raw=true)
+![alt text](https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/traj_example.jpg?raw=true)
 
 For more information on how to create the trajectory, please visit my other repository, https://github.com/yorgoon/minimum-snap-geometric-control/.
 
