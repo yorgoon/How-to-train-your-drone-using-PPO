@@ -16,6 +16,13 @@ To test the agent, run ``Test`` section under ``PPO.m``. You can create your own
 
 ![alt text](https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/traj_example.jpg?raw=true)
 
+You can also use time allocation technique to automatically set time intervals ``tau_vec`` using ``timeAllocation``. For example,
+````
+path = [0,0,0;1,1,0;2,0,0;1,-1,0;0,0,0;-1,1,0;-2,0,0;-1,-1,0;0,0,0];
+tau_vec = timeAllocation(path, 100)';
+````
+
+
 For more information on how to create the trajectory, please visit my other repository, https://github.com/yorgoon/minimum-snap-geometric-control/.
 
 To try a trained model, you can load ``0615_FM.mat`` in results folder.
