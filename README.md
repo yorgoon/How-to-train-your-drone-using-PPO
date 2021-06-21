@@ -136,7 +136,7 @@ PPO agent trained to perform Inside loop
 PPO agent trained to perform Split S
 
 [![PPO agent trained to perform Split S](https://img.youtube.com/vi/Bap1MF9zrjI/0.jpg)](https://www.youtube.com/watch?v=Bap1MF9zrjI)
-
+![alt text](https://github.com/yorgoon/How-to-train-your-drone-using-PPO/blob/main/src/figures/splitS.gif)
 PPO agent trained to perform Canopy roll
 
 [![PPO agent trained to perform Canopy roll](https://img.youtube.com/vi/4YRYZYiwABw/0.jpg)](https://www.youtube.com/watch?v=4YRYZYiwABw)
