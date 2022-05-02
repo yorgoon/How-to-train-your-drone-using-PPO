@@ -7,9 +7,10 @@
 
 **Affiliation**: Korea University
 
-**Slides and Report**
-[Report](https://drive.google.com/file/d/1PuoqqwfG2XdCRXCPjjoHQITfE7P74c1C/view?usp=sharing)
+**Slides and Report**:
 [Slides](https://docs.google.com/presentation/d/1V7vID4ProhA3TLifYaoa4wiK1LEo0NFq/edit?usp=sharing&ouid=114691997159666269987&rtpof=true&sd=true)
+[Report](https://drive.google.com/file/d/1PuoqqwfG2XdCRXCPjjoHQITfE7P74c1C/view?usp=sharing)
+
 
 ## Requirements
 Tested on MATLAB 2021a. [RL package](https://www.mathworks.com/products/reinforcement-learning.html) is required.
