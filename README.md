@@ -9,7 +9,7 @@
 
 **Slides and Report**:
 [Slides](https://docs.google.com/presentation/d/1V7vID4ProhA3TLifYaoa4wiK1LEo0NFq/edit?usp=sharing&ouid=114691997159666269987&rtpof=true&sd=true)
-[Report](https://drive.google.com/file/d/1PuoqqwfG2XdCRXCPjjoHQITfE7P74c1C/view?usp=sharing)
+[Report](https://drive.google.com/file/d/1PuoqqwfG2XdCRXCPjjoHQITfE7P74c1C/view?usp=sharing) contain explanations on key ideas including the selection of the states, actions, and rewards as well as particular choices of the networks.
 
 
 ## Requirements
